@@ -63,7 +63,7 @@ void StartInitTask(void *argument) {
         "battery/data"
     );
 
-    // init test node
+    // init teleop node
     rclc_node_init_default(&Ros_Teleop_node, "teleop_node", "", &Ros_support);
     rclc_subscription_init_best_effort(
         &Ros_Teleop_data_sub,
