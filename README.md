@@ -18,7 +18,7 @@ To clone the repository, run:
 3. **Build the Firmware**:
    - Navigate to the cloned repository: `cd micro_ros_firmware`
    - Open the project in STM32CubeIDE or use the provided build scripts (e.g., `make`).
-   - Configure the micro-ROS agent and build the firmware following the instructions in [micro_ros_stm32cubemx_utils](https://github.com/micro-ROS/micro_ros_stm32cubemx_utils).
+   - Configure the micro-ROS agent and build the firmware following the instructions (FOLLOW the "Using this package with STM32CubeIDE" part) inside the [micro_ros_stm32cubemx_utils](https://github.com/micro-ROS/micro_ros_stm32cubemx_utils).
 
 4. **Flash the Firmware**:
    - Connect the STM32F446RET6 board via a debugger (e.g., ST-Link).
@@ -30,10 +30,15 @@ Below is a screenshot of the firmware running on the STM32F446RET6 board:
 ![Firmware Screenshot](images/screenshot.png)
 
 ## Some test commands:
-1) Init micro ros agent, with the deffaut 1500000 baud rate in the code 
+1) Init micro ros agent, with the deffault 1500000 baud rate in the code 
 ```bash
 ros2 run micro_ros_agent micro_ros_agent serial -b 1500000 --dev /dev/ttyUSB0
 ```
-
 2) Check the existing nodes inside the dev board.
-
+```bash
+ros2 node list
+```
+3) Check the existing topics inside the dev board.
+```bash
+ros2 topic list
+``` 
