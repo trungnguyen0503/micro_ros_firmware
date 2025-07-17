@@ -3,7 +3,7 @@
 
 #include "rcl/rcl.h"
 
-extern rcl_node_t Ros_imu_node;
-extern rcl_publisher_t Ros_imu_data_pub;
+extern rcl_node_t Ros_Imu_node;
+extern rcl_publisher_t Ros_Imu_data_pub;
 
 #endif

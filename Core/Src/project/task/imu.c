@@ -38,7 +38,7 @@ void StartIMUTask(void *argument) {
         msg.angular_velocity = (geometry_msgs__msg__Vector3){ gyro.x, gyro.y, gyro.z };
         msg.linear_acceleration = (geometry_msgs__msg__Vector3){ accel.x, accel.y, accel.z };
         msg.orientation = (geometry_msgs__msg__Quaternion){ 0, 0, 0, 1 };
-        const rcl_ret_t ret = rcl_publish(&Ros_imu_data_pub, &msg, NULL);
+        const rcl_ret_t ret = rcl_publish(&Ros_Imu_data_pub, &msg, NULL);
         if (ret != RCL_RET_OK) {
         }
 
