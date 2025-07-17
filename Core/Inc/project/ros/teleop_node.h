@@ -10,6 +10,6 @@ extern rcl_subscription_t Ros_Teleop_data_sub;
 extern rclc_executor_t Ros_Teleop_exec;
 extern geometry_msgs__msg__Twist Ros_Teleop_msg;
 
-void Ros_Teleop_callback(const void *void_msg);
+void Ros_Teleop_Callback(const void *void_msg);
 
 #endif
