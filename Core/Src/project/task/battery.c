@@ -29,7 +29,7 @@ void StartBatteryTask(void *argument) {
             .power_supply_status = sensor_msgs__msg__BatteryState__POWER_SUPPLY_STATUS_DISCHARGING,
         };
 
-        const rcl_ret_t ret = rcl_publish(&Ros_battery_data_pub, &msg, NULL);
+        const rcl_ret_t ret = rcl_publish(&Ros_Battery_data_pub, &msg, NULL);
         if (ret != RCL_RET_OK) {
         }
 
