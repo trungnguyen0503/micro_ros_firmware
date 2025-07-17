@@ -1,0 +1,17 @@
+IndentWidth: 4
+ObjCBlockIndentWidth: 4
+ColumnLimit: 0
+SortIncludes: CaseInsensitive
+AlignEscapedNewlines: DontAlign
+AlignArrayOfStructures: Right
+Cpp11BracedListStyle: false
+AccessModifierOffset: -4
+# BreakAfterAttributes: Leave
+IndentCaseLabels: true
+ContinuationIndentWidth: 4
+BreakConstructorInitializers: AfterColon
+AlignAfterOpenBracket: BlockIndent
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortEnumsOnASingleLine: true
+AllowShortLoopsOnASingleLine: true
+# QualifierOrder: [static, inline, constexpr, friend, volatile, const, type, restrict]

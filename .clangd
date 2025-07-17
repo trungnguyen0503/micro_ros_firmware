@@ -1,0 +1,31 @@
+CompileFlags:
+  Add: [
+    -Wno-unknown-warning-option,
+    -I/opt/st/stm32cubeide_1.18.1/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.13.3.rel1.linux64_1.0.0.202410170706/tools/arm-none-eabi/include,
+  ]
+  Remove: [-m*, -f*]
+
+Diagnostics:
+  ClangTidy:
+    Add: [
+      boost-*,
+      clang-analyzer-*,
+      cppcoreguidelines-*,
+      concurrency-*,
+      misc-*,
+      modernize-*,
+      performance-*,
+      portability-*,
+      readability-*,
+    ]
+    Remove: [
+      performance-no-int-to-ptr,
+      cppcoreguidelines-avoid-magic-numbers,
+      cppcoreguidelines-non-private-member-variables-in-classes,
+      cppcoreguidelines-avoid-non-const-global-variables,
+      misc-non-private-member-variables-in-classes,
+      readability-identifier-length,
+      readability-magic-numbers,
+      readability-qualified-auto,
+      readability-implicit-bool-conversion,
+    ]
