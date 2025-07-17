@@ -46,19 +46,19 @@ void StartInitTask(void *argument) {
     rclc_support_init(&Ros_support, 0, NULL, &Ros_allocator);
 
     // init imu node
-    rclc_node_init_default(&Ros_imu_node, "imu_node", "", &Ros_support);
+    rclc_node_init_default(&Ros_Imu_node, "imu_node", "", &Ros_support);
     rclc_publisher_init_best_effort(
-        &Ros_imu_data_pub,
-        &Ros_imu_node,
+        &Ros_Imu_data_pub,
+        &Ros_Imu_node,
         ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, Imu),
         "imu/data"
     );
 
     // init battery node
-    rclc_node_init_default(&Ros_battery_node, "battery_node", "", &Ros_support);
+    rclc_node_init_default(&Ros_Battery_node, "battery_node", "", &Ros_support);
     rclc_publisher_init_best_effort(
-        &Ros_battery_data_pub,
-        &Ros_battery_node,
+        &Ros_Battery_data_pub,
+        &Ros_Battery_node,
         ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, BatteryState),
         "battery/data"
     );
