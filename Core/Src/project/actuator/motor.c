@@ -56,27 +56,31 @@ void Actuator_Motor_SetRightPwmPercent(const double percent) {
 double Actuator_Motor_LeftAngularVelToPwmPercent(const double w) {
     const double rpm = w * 60.0 / 2.0 / M_PI;
     const double abs_rpm = fabs(rpm);
-    if (abs_rpm < Actuator_Motor_MIN_RPM || abs_rpm > Actuator_Motor_MAX_RPM) {
+    if (abs_rpm < Actuator_Motor_MIN_RPM) {
         return 0.0;
     }
-    if (rpm >= 0) {
-        return 52.5 + 0.146 * rpm + 3.76E-5 * rpm * rpm;
+    if (abs_rpm > Actuator_Motor_MAX_RPM) {
+        return rpm > 0 ? Actuator_Motor_MAX_RPM : -Actuator_Motor_MAX_RPM;
     }
-    // TODO:
-    return 0.0;
+    if (rpm >= 0) {
+        return 52.5 + 0.146 * abs_rpm + 3.76E-5 * abs_rpm * abs_rpm;
+    }
+    return -52.0 - 0.159 * abs_rpm - 3.38E-5 * abs_rpm * abs_rpm;
 }
 
 double Actuator_Motor_RightAngularVelToPwmPercent(const double w) {
     const double rpm = w * 60.0 / 2.0 / M_PI;
     const double abs_rpm = fabs(rpm);
-    if (abs_rpm < Actuator_Motor_MIN_RPM || abs_rpm > Actuator_Motor_MAX_RPM) {
+    if (abs_rpm < Actuator_Motor_MIN_RPM) {
         return 0.0;
     }
-    if (rpm >= 0) {
-        return 52.0 + 0.174 * rpm - 1.44E-5 * rpm * rpm;
+    if (abs_rpm > Actuator_Motor_MAX_RPM) {
+        return rpm > 0 ? Actuator_Motor_MAX_RPM : -Actuator_Motor_MAX_RPM;
     }
-    // TODO:
-    return 0.0;
+    if (rpm >= 0) {
+        return 52.0 + 0.174 * abs_rpm - 1.44E-5 * abs_rpm * abs_rpm;
+    }
+    return -52.7 - 0.152 * abs_rpm - 1.08E-5 * abs_rpm * abs_rpm;
 }
 
 void Actuator_Motor_SetLeftAngularVel(const double w) {
