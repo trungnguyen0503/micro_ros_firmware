@@ -27,7 +27,7 @@ To clone the repository, run:
 
 5. **Connect to the PC or SBC**
    - Remove the debugger after finishing flashing the board.
-   - Using an USB type-C cable to connect the the UART port on the board. Make sure to switch OFF if you use the external power source (e.g battery, DC adapter). 
+   - Using an USB type-C cable to connect the UART port on the board to USB slot on PC or SBC. Make sure to switch OFF if you use the external power source (e.g battery, DC adapter). 
 
 ## Some test commands:
 1) Init micro ros agent, with the deffault 1500000 baud rate in the code 
