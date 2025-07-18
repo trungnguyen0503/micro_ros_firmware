@@ -4,6 +4,8 @@
 This repository contains the firmware for the STM32F446RET6 multifunctional development board, developed by Nguyen Tuan Anh and contributed by Nguyen Quoc Trung as part of an undergraduate thesis. The firmware is built using the FreeRTOS API and integrates micro-ROS utilities from [micro_ros_stm32cubemx_utils](https://github.com/micro-ROS/micro_ros_stm32cubemx_utils). All the software used was built around the ROS2 Humble Distro.
 
 ![The board functionality](image/PCB_description.jpg)
+
+![The board schematic](image/STM32_F4_STUDY_KIT_SCHE.pdf)
 ## Installation
 To clone the repository, run:
 ```bash
