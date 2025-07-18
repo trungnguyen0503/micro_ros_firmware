@@ -26,7 +26,7 @@ To clone the repository, run:
    - Flash the compiled firmware (if needed) using STM32CubeIDE or a tool like [STM32CubeProgrammer](https://www.st.com/en/development-tools/stm32cubeprog.html).
 
 5. **Connect to the PC or SBC**
-   - Remove the debugger after finishing flashing the code.
+   - Remove the debugger after finishing flashing the board.
    - Using an USB type-C cable to connect the the UART port on the board. Make sure to switch OFF if you use the external power source (e.g battery, DC adapter). 
 
 ## Some test commands:
