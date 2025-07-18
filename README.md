@@ -25,6 +25,10 @@ To clone the repository, run:
    - Connect the STM32F446RET6 board via a debugger (e.g., ST-Link).
    - Flash the compiled firmware (if needed) using STM32CubeIDE or a tool like [STM32CubeProgrammer](https://www.st.com/en/development-tools/stm32cubeprog.html).
 
+5. **Connect to the PC or SBC**
+   - Remove the debugger after finishing flashing the code
+   - Using an USB type-C cable to connect the the UART port on the board with the usb port on the machine. Make sure to switch OFF if you use the external power source (e.g battery, DC adapter). 
+
 ## Some test commands:
 1) Init micro ros agent, with the deffault 1500000 baud rate in the code 
 ```bash
