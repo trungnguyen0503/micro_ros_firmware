@@ -5,7 +5,7 @@ This repository contains the firmware for the STM32F446RET6 multifunctional deve
 
 ![The board functionality](image/PCB_description.jpg)
 
-![The board schematic](image/STM32_F4_STUDY_KIT_SCHE.pdf)
+Schematic of the board can be found here [The board schematic](image/STM32_F4_STUDY_KIT_SCHE.pdf)
 ## Installation
 To clone the repository, run:
 ```bash
