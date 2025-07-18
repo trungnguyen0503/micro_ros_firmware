@@ -26,9 +26,9 @@ To clone the repository, run:
    - Flash the compiled firmware (if needed) using STM32CubeIDE or a tool like [STM32CubeProgrammer](https://www.st.com/en/development-tools/stm32cubeprog.html).
 
 ## Example Output
-Below is a screenshot of the firmware running on the STM32F446RET6 board:
+Below is a screenshot of the firmware running on the STM32F446RET6 board, if the log doesnt look like this, press RESET button to re establish the session.
 
-![Firmware Screenshot](images/screenshot.png)
+![Firmware Screenshot](image/done.png)
 
 ## Some test commands:
 1) Init micro ros agent, with the deffault 1500000 baud rate in the code 
