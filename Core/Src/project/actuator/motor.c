@@ -60,7 +60,7 @@ double Actuator_Motor_LeftAngularVelToPwmPercent(const double w) {
         return 0.0;
     }
     if (abs_rpm > Actuator_Motor_MAX_RPM) {
-        return rpm > 0 ? Actuator_Motor_MAX_RPM : -Actuator_Motor_MAX_RPM;
+        return rpm >= 0 ? Actuator_Motor_MAX_RPM : -Actuator_Motor_MAX_RPM;
     }
     if (rpm >= 0) {
         return 52.5 + 0.146 * abs_rpm + 3.76E-5 * abs_rpm * abs_rpm;
@@ -75,7 +75,7 @@ double Actuator_Motor_RightAngularVelToPwmPercent(const double w) {
         return 0.0;
     }
     if (abs_rpm > Actuator_Motor_MAX_RPM) {
-        return rpm > 0 ? Actuator_Motor_MAX_RPM : -Actuator_Motor_MAX_RPM;
+        return rpm >= 0 ? Actuator_Motor_MAX_RPM : -Actuator_Motor_MAX_RPM;
     }
     if (rpm >= 0) {
         return 52.0 + 0.174 * abs_rpm - 1.44E-5 * abs_rpm * abs_rpm;
