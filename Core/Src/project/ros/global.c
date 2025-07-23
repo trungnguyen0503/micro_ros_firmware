@@ -26,16 +26,23 @@ void Ros_Init() {
     }
 
     // Set Uros custom allocator
-    Ros_allocator.allocate = Uros_Allocate;
-    Ros_allocator.deallocate = Uros_Deallocate;
-    Ros_allocator.reallocate = Uros_Reallocate;
-    Ros_allocator.zero_allocate = Uros_ZeroAllocate;
-    if (!rcutils_set_default_allocator(&Ros_allocator)) {
-        // TODO:
+    {
+        Ros_allocator.allocate = Uros_Allocate;
+        Ros_allocator.deallocate = Uros_Deallocate;
+        Ros_allocator.reallocate = Uros_Reallocate;
+        Ros_allocator.zero_allocate = Uros_ZeroAllocate;
+        if (!rcutils_set_default_allocator(&Ros_allocator)) {
+            // TODO:
+        }
     }
 
     // Set support struct
-    rclc_support_init(&Ros_support, 0, NULL, &Ros_allocator);
+    {
+        const rcl_ret_t ret = rclc_support_init(&Ros_support, 0, NULL, &Ros_allocator);
+        if (ret != RCL_RET_OK) {
+            // TODO:
+        }
+    }
 }
 
 const rcl_allocator_t *Ros_GetAllocator() {
