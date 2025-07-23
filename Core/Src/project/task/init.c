@@ -6,12 +6,7 @@
 #include "project/sensor/motor_encoder.h"
 #include "project/uros/utility.h"
 
-#include "geometry_msgs/msg/twist.h"
-#include "rclc/executor.h"
-#include "rclc/rclc.h"
 #include "rmw_microros/rmw_microros.h"
-#include "sensor_msgs/msg/battery_state.h"
-#include "sensor_msgs/msg/imu.h"
 
 #include "cmsis_os2.h"
 #include "usart.h"
@@ -22,35 +17,9 @@ void StartInitTask(void *argument) {
     Actuator_Motor_Init();
     Sensor_MotorEncoder_Init();
 
-    // init uros transport
-    rmw_uros_set_custom_transport(
-        true,
-        &huart1,
-        Uros_UartDmaTransport_Open,
-        Uros_UartDmaTransport_Close,
-        Uros_UartDmaTransport_Write,
-        Uros_UartDmaTransport_Read
-    );
-
-    // init uros allocator
-    Ros_allocator.allocate = Uros_Allocate;
-    Ros_allocator.deallocate = Uros_Deallocate;
-    Ros_allocator.reallocate = Uros_Reallocate;
-    Ros_allocator.zero_allocate = Uros_ZeroAllocate;
-    if (!rcutils_set_default_allocator(&Ros_allocator)) {
-        // TODO:
-    }
-
-    // set global allocator and support
-    rclc_support_init(&Ros_support, 0, NULL, &Ros_allocator);
-
-    // init imu node
+    Ros_Init();
     Ros_Imu_InitNode();
-
-    // init battery node
     Ros_Battery_InitNode();
-
-    // init teleop node
     Ros_Teleop_InitNode();
 
     osThreadExit();

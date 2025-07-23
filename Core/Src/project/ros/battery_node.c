@@ -7,7 +7,7 @@ rcl_node_t Ros_Battery_node = { 0 };
 rcl_publisher_t Ros_Battery_data_pub = { 0 };
 
 void Ros_Battery_InitNode() {
-    rclc_node_init_default(&Ros_Battery_node, "battery_node", "", &Ros_support);
+    rclc_node_init_default(&Ros_Battery_node, "battery_node", "", Ros_GetSupportStruct());
     rclc_publisher_init_best_effort(
         &Ros_Battery_data_pub,
         &Ros_Battery_node,

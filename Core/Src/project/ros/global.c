@@ -1,4 +1,47 @@
 #include "project/ros/global.h"
+#include "project/uros/utility.h"
+
+#include "rclc/rclc.h"
+#include "rmw_microros/rmw_microros.h"
+
+#include "usart.h"
 
 rcl_allocator_t Ros_allocator = { 0 };
 rclc_support_t Ros_support = { 0 };
+
+void Ros_Init() {
+    // Set UART DMA transport
+    {
+        const rmw_ret_t ret = rmw_uros_set_custom_transport(
+            true,
+            &huart1,
+            Uros_UartDmaTransport_Open,
+            Uros_UartDmaTransport_Close,
+            Uros_UartDmaTransport_Write,
+            Uros_UartDmaTransport_Read
+        );
+        if (ret != RMW_RET_OK) {
+            // TODO:
+        }
+    }
+
+    // Set Uros custom allocator
+    Ros_allocator.allocate = Uros_Allocate;
+    Ros_allocator.deallocate = Uros_Deallocate;
+    Ros_allocator.reallocate = Uros_Reallocate;
+    Ros_allocator.zero_allocate = Uros_ZeroAllocate;
+    if (!rcutils_set_default_allocator(&Ros_allocator)) {
+        // TODO:
+    }
+
+    // Set support struct
+    rclc_support_init(&Ros_support, 0, NULL, &Ros_allocator);
+}
+
+const rcl_allocator_t *Ros_GetAllocator() {
+    return &Ros_allocator;
+}
+
+rclc_support_t *Ros_GetSupportStruct() {
+    return &Ros_support;
+}
