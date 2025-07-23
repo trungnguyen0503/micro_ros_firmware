@@ -1,10 +1,10 @@
 #include "project/ros/imu_node.h"
 #include "project/sensor/icm20948.h"
 
-#include "rcl/rcl.h"
 #include "sensor_msgs/msg/imu.h"
+#include "sensor_msgs/msg/magnetic_field.h"
 
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
 
 void StartIMUTask(void *argument) {
     UNUSED(argument);
@@ -20,28 +20,39 @@ void StartIMUTask(void *argument) {
     }
 
     while (1) {
-        // int16_vector3 raw_mag = { 0 };
-        // float_vector3 mag = { 0 };
-        ICM20948_int16_vector3 raw_accel = { 0 };
-        ICM20948_int16_vector3 raw_gyro = { 0 };
-        ICM20948_ReadAccelGryoRegisters(&raw_accel, &raw_gyro);
-        const ICM20948_float_vector3 accel = ICM20948_ScaleSensorVector(&raw_accel, 0.0000610352F);
-        const ICM20948_float_vector3 gyro = ICM20948_ScaleSensorVector(&raw_gyro, 0.0076335F);
-        // if (ICM20948_ReadMagRegisters(&raw_mag) == HAL_OK) {
-        //     mag = ICM20948_ScaleSensorVectors(&raw_mag, 0.15F);
-        // }
+        // imu pub
+        {
+            ICM20948_int16_vector3 raw_accel = { 0 };
+            ICM20948_int16_vector3 raw_gyro = { 0 };
+            ICM20948_ReadAccelGryoRegisters(&raw_accel, &raw_gyro);
+            const ICM20948_float_vector3 accel = ICM20948_ScaleSensorVector(&raw_accel, 0.0000610352F);
+            const ICM20948_float_vector3 gyro = ICM20948_ScaleSensorVector(&raw_gyro, 0.0076335F);
 
-        sensor_msgs__msg__Imu msg = { 0 };
-        msg.angular_velocity_covariance[0] = -1;
-        msg.linear_acceleration_covariance[0] = -1;
-        msg.orientation_covariance[0] = -1;
-        msg.angular_velocity = (geometry_msgs__msg__Vector3){ gyro.x, gyro.y, gyro.z };
-        msg.linear_acceleration = (geometry_msgs__msg__Vector3){ accel.x, accel.y, accel.z };
-        msg.orientation = (geometry_msgs__msg__Quaternion){ 0, 0, 0, 1 };
-        const rcl_ret_t ret = rcl_publish(&Ros_Imu_data_pub, &msg, NULL);
-        if (ret != RCL_RET_OK) {
+            sensor_msgs__msg__Imu msg = { 0 };
+            msg.angular_velocity = (geometry_msgs__msg__Vector3){ gyro.x, gyro.y, gyro.z };
+            msg.linear_acceleration = (geometry_msgs__msg__Vector3){ accel.x, accel.y, accel.z };
+            msg.orientation = (geometry_msgs__msg__Quaternion){ 0, 0, 0, 1 };
+            msg.angular_velocity_covariance[0] = -1;
+            msg.linear_acceleration_covariance[0] = -1;
+            msg.orientation_covariance[0] = -1;
+            const rcl_ret_t ret = rcl_publish(&Ros_Imu_imu_data_pub, &msg, NULL);
+            if (ret != RCL_RET_OK) {
+            }
         }
 
+        // magnetic field pub
+        {
+            ICM20948_int16_vector3 raw_mag = { 0 };
+            ICM20948_ReadMagRegisters(&raw_mag);
+            const ICM20948_float_vector3 mag = ICM20948_ScaleSensorVector(&raw_mag, 0.15F);
+
+            sensor_msgs__msg__MagneticField msg = { 0 };
+            msg.magnetic_field = (geometry_msgs__msg__Vector3){ mag.x, mag.y, mag.z };
+            msg.magnetic_field_covariance[0] = -1;
+            const rcl_ret_t ret = rcl_publish(&Ros_Imu_magnetometer_data_pub, &msg, NULL);
+            if (ret != RCL_RET_OK) {
+            }
+        }
         osDelay(50);
     }
 }

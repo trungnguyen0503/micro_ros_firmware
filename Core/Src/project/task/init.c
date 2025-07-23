@@ -7,7 +7,6 @@
 #include "project/uros/utility.h"
 
 #include "geometry_msgs/msg/twist.h"
-#include "rcl/rcl.h"
 #include "rclc/executor.h"
 #include "rclc/rclc.h"
 #include "rmw_microros/rmw_microros.h"
@@ -46,13 +45,7 @@ void StartInitTask(void *argument) {
     rclc_support_init(&Ros_support, 0, NULL, &Ros_allocator);
 
     // init imu node
-    rclc_node_init_default(&Ros_Imu_node, "imu_node", "", &Ros_support);
-    rclc_publisher_init_best_effort(
-        &Ros_Imu_data_pub,
-        &Ros_Imu_node,
-        ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, Imu),
-        "imu/data"
-    );
+    Ros_Imu_InitNode();
 
     // init battery node
     rclc_node_init_default(&Ros_Battery_node, "battery_node", "", &Ros_support);
