@@ -67,6 +67,7 @@ geometry_msgs__msg__Vector3 Sensor_Imu_GetGyro() {
 
 geometry_msgs__msg__Vector3 Sensor_Imu_GetMag() {
     const double scale = 1.0 / (INT16_MAX / 4900e-6);
+
     ICM20948_int16_vector3 raw = { 0 };
     ICM20948_ReadMagRegisters(&raw);
     return (geometry_msgs__msg__Vector3){

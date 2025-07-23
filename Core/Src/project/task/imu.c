@@ -15,7 +15,7 @@ void StartIMUTask(void *argument) {
     while (1) {
         {
             const uint32_t ms = osKernelGetTickCount();
-            sensor_msgs__msg__Imu msg = {
+            const sensor_msgs__msg__Imu msg = {
                 .header.stamp.sec = (int32_t)(ms / 1000),
                 .header.stamp.nanosec = (ms % 1000) * 1000000,
                 .angular_velocity = Sensor_Imu_GetGyro(),
@@ -31,7 +31,7 @@ void StartIMUTask(void *argument) {
         }
         {
             const uint32_t ms = osKernelGetTickCount();
-            sensor_msgs__msg__MagneticField msg = {
+            const sensor_msgs__msg__MagneticField msg = {
                 .header.stamp.sec = (int32_t)(ms / 1000),
                 .header.stamp.nanosec = (ms % 1000) * 1000000,
                 .magnetic_field = Sensor_Imu_GetMag(),
