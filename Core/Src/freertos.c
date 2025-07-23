@@ -76,10 +76,10 @@ const osThreadAttr_t BatteryTask_attributes = {
   .stack_size = 1000 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
-/* Definitions for SubscribeTask */
-osThreadId_t SubscribeTaskHandle;
-const osThreadAttr_t SubscribeTask_attributes = {
-  .name = "SubscribeTask",
+/* Definitions for TeleopTask */
+osThreadId_t TeleopTaskHandle;
+const osThreadAttr_t TeleopTask_attributes = {
+  .name = "TeleopTask",
   .stack_size = 1000 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
@@ -92,7 +92,7 @@ void StartInitTask(void *argument);
 void StartDebugTask(void *argument);
 void StartIMUTask(void *argument);
 void StartBatteryTask(void *argument);
-void StartSubscribeTask(void *argument);
+void StartTeleopTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -151,8 +151,8 @@ void MX_FREERTOS_Init(void) {
   /* creation of BatteryTask */
   BatteryTaskHandle = osThreadNew(StartBatteryTask, NULL, &BatteryTask_attributes);
 
-  /* creation of SubscribeTask */
-  SubscribeTaskHandle = osThreadNew(StartSubscribeTask, NULL, &SubscribeTask_attributes);
+  /* creation of TeleopTask */
+  TeleopTaskHandle = osThreadNew(StartTeleopTask, NULL, &TeleopTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -220,18 +220,18 @@ __weak void StartBatteryTask(void *argument)
   /* USER CODE END StartBatteryTask */
 }
 
-/* USER CODE BEGIN Header_StartSubscribeTask */
+/* USER CODE BEGIN Header_StartTeleopTask */
 /**
- * @brief Function implementing the SubscribeTask thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartSubscribeTask */
-__weak void StartSubscribeTask(void *argument)
+* @brief Function implementing the TeleopTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartTeleopTask */
+__weak void StartTeleopTask(void *argument)
 {
-  /* USER CODE BEGIN StartSubscribeTask */
+  /* USER CODE BEGIN StartTeleopTask */
   UNUSED(argument);
-  /* USER CODE END StartSubscribeTask */
+  /* USER CODE END StartTeleopTask */
 }
 
 /* Private application code --------------------------------------------------*/

@@ -2,16 +2,15 @@
 #define ROS_TELEOP_NODE_H
 
 #include "geometry_msgs/msg/twist.h"
+#include "rcl/subscription.h"
 #include "rclc/executor.h"
 #include "rclc/node.h"
 #include "rclc/subscription.h"
 
-extern rcl_node_t Ros_Teleop_node;
-extern rcl_subscription_t Ros_Teleop_data_sub;
-extern rclc_executor_t Ros_Teleop_exec;
-extern geometry_msgs__msg__Twist Ros_Teleop_msg;
-
-void Ros_Teleop_InitNode();
-void Ros_Teleop_Callback(const void *void_msg);
+void Ros_TeleopNode_Init();
+const rcl_node_t *Ros_TeleopNode_GetHandle();
+const rcl_subscription_t *Ros_TeleopNode_GetTeleopDataSub();
+rclc_executor_t* Ros_TeleopNode_GetExec();
+void Ros_TeleopNode_Callback(const void *void_msg);
 
 #endif

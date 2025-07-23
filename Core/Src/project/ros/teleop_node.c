@@ -3,29 +3,42 @@
 #include "project/kinematics.h"
 #include "project/ros/global.h"
 
-rcl_node_t Ros_Teleop_node = { 0 };
-rcl_subscription_t Ros_Teleop_data_sub = { 0 };
-rclc_executor_t Ros_Teleop_exec = { 0 };
-geometry_msgs__msg__Twist Ros_Teleop_msg = { 0 };
+static rcl_node_t Ros_TeleopNode_handle = { 0 };
+static rcl_subscription_t Ros_TeleopNode_teleop_data_sub = { 0 };
+static rclc_executor_t Ros_TeleopNode_exec = { 0 };
+static geometry_msgs__msg__Twist Ros_Teleop_teleop_data_msg = { 0 };
 
-static uint32_t DEBUG_teleop_cb_cnt = 0;
-
-void Ros_Teleop_InitNode() {
-    rclc_node_init_default(&Ros_Teleop_node, "teleop_node", "", Ros_GetSupportStruct());
+void Ros_TeleopNode_Init() {
+    rclc_node_init_default(&Ros_TeleopNode_handle, "teleop_node", "", Ros_GetSupportStruct());
     rclc_subscription_init_best_effort(
-        &Ros_Teleop_data_sub,
-        &Ros_Teleop_node,
+        &Ros_TeleopNode_teleop_data_sub,
+        &Ros_TeleopNode_handle,
         ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),
         "cmd_vel"
     );
-    rclc_executor_init(&Ros_Teleop_exec, &Ros_GetSupportStruct()->context, 1, Ros_GetAllocator());
+    rclc_executor_init(
+        &Ros_TeleopNode_exec, &Ros_GetSupportStruct()->context,
+        1, Ros_GetAllocator()
+    );
     rclc_executor_add_subscription(
-        &Ros_Teleop_exec, &Ros_Teleop_data_sub, &Ros_Teleop_msg,
-        Ros_Teleop_Callback, ON_NEW_DATA
+        &Ros_TeleopNode_exec, &Ros_TeleopNode_teleop_data_sub, &Ros_Teleop_teleop_data_msg,
+        Ros_TeleopNode_Callback, ON_NEW_DATA
     );
 }
 
-void Ros_Teleop_Callback(const void *void_msg) {
+const rcl_node_t *Ros_TeleopNode_GetHandle() {
+    return &Ros_TeleopNode_handle;
+}
+
+const rcl_subscription_t *Ros_TeleopNode_GetTeleopDataSub() {
+    return &Ros_TeleopNode_teleop_data_sub;
+}
+
+rclc_executor_t *Ros_TeleopNode_GetExec() {
+    return &Ros_TeleopNode_exec;
+}
+
+void Ros_TeleopNode_Callback(const void *void_msg) {
     const geometry_msgs__msg__Twist *msg = void_msg;
     const double v = msg->linear.x;
     const double w = msg->angular.z;
@@ -35,6 +48,4 @@ void Ros_Teleop_Callback(const void *void_msg) {
     const double w_right = Kinematics_LinearVelToAngularVel(v_right);
     Actuator_Motor_SetLeftAngularVel(w_left);
     Actuator_Motor_SetRightAngularVel(w_right);
-    DEBUG_teleop_cb_cnt++;
-    UNUSED(msg);
 }
