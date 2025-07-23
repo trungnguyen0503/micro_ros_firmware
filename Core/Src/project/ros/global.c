@@ -6,8 +6,8 @@
 
 #include "usart.h"
 
-rcl_allocator_t Ros_allocator = { 0 };
-rclc_support_t Ros_support = { 0 };
+static rcl_allocator_t Ros_allocator = { 0 };
+static rclc_support_t Ros_support = { 0 };
 
 void Ros_Init() {
     // Set UART DMA transport

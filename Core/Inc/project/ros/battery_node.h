@@ -4,9 +4,8 @@
 #include "rclc/node.h"
 #include "rclc/publisher.h"
 
-extern rcl_node_t Ros_Battery_node;
-extern rcl_publisher_t Ros_Battery_data_pub;
-
-void Ros_Battery_InitNode();
+void Ros_BatteryNode_Init();
+const rcl_node_t *Ros_BatteryNode_GetHandle();
+const rcl_publisher_t *Ros_BatteryNode_GetBatteryDataPub();
 
 #endif

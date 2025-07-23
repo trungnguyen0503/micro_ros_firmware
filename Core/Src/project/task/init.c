@@ -19,7 +19,7 @@ void StartInitTask(void *argument) {
 
     Ros_Init();
     Ros_Imu_InitNode();
-    Ros_Battery_InitNode();
+    Ros_BatteryNode_Init();
     Ros_Teleop_InitNode();
 
     osThreadExit();

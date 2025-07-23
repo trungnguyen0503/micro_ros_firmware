@@ -1,10 +1,9 @@
 #include "project/ros/battery_node.h"
 
-#include "rcl/rcl.h"
 #include "sensor_msgs/msg/battery_state.h"
 
 #include "adc.h"
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
 
 void StartBatteryTask(void *argument) {
     UNUSED(argument);
@@ -29,7 +28,7 @@ void StartBatteryTask(void *argument) {
             .power_supply_status = sensor_msgs__msg__BatteryState__POWER_SUPPLY_STATUS_DISCHARGING,
         };
 
-        const rcl_ret_t ret = rcl_publish(&Ros_Battery_data_pub, &msg, NULL);
+        const rcl_ret_t ret = rcl_publish(Ros_BatteryNode_GetBatteryDataPub(), &msg, NULL);
         if (ret != RCL_RET_OK) {
         }
 
