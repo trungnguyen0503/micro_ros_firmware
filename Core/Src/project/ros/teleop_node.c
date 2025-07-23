@@ -3,8 +3,6 @@
 #include "project/kinematics.h"
 #include "project/ros/global.h"
 
-#include "rclc/rclc.h"
-
 rcl_node_t Ros_Teleop_node = { 0 };
 rcl_subscription_t Ros_Teleop_data_sub = { 0 };
 rclc_executor_t Ros_Teleop_exec = { 0 };

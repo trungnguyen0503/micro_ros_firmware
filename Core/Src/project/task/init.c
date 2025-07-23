@@ -48,24 +48,10 @@ void StartInitTask(void *argument) {
     Ros_Imu_InitNode();
 
     // init battery node
-    rclc_node_init_default(&Ros_Battery_node, "battery_node", "", &Ros_support);
-    rclc_publisher_init_best_effort(
-        &Ros_Battery_data_pub,
-        &Ros_Battery_node,
-        ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, BatteryState),
-        "battery/data"
-    );
+    Ros_Battery_InitNode();
 
     // init teleop node
     Ros_Teleop_InitNode();
 
     osThreadExit();
-}
-
-rclc_support_t *Task_GetRclcSupport() {
-    return &Ros_support;
-}
-
-rcl_allocator_t *Task_GetRclAllocator() {
-    return &Ros_allocator;
 }

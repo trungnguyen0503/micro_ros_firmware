@@ -2,8 +2,9 @@
 #define ROS_TELEOP_NODE_H
 
 #include "geometry_msgs/msg/twist.h"
-#include "rcl/rcl.h"
 #include "rclc/executor.h"
+#include "rclc/node.h"
+#include "rclc/subscription.h"
 
 extern rcl_node_t Ros_Teleop_node;
 extern rcl_subscription_t Ros_Teleop_data_sub;
