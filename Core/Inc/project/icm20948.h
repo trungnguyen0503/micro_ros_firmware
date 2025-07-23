@@ -709,7 +709,7 @@ typedef enum ICM20948_SDO_pinouts {
 #define AK09916_ADDR_WRITE 0x0C
 #define AK09916_WIA_VALUE 0x09
 
-typedef enum cntl2_modes {
+typedef enum cntl2_modes : uint8_t {
     AK09916_CNTL2_POWER_DOWN = 0,
     AK09916_CNTL2_SINGLE_MEASURE = 0b00000001,
     AK09916_CNTL2_CONT_MEASURE_1 = 0b00000010,
@@ -723,7 +723,7 @@ typedef enum AK09916_cntl3_modes {
     AK09916_CNTL3_SOFT_RESET = 0b000001
 } AK09916_cntl3_modes;
 
-typedef enum AK09916_register {
+typedef enum AK09916_register : uint8_t {
     AK09916_WIA = 0x01,
     AK09916_ST1 = 0x10,
     AK09916_HXL = 0x11,

@@ -1,54 +1,42 @@
+#include "project/sensor/imu.h"
+#include "project/icm20948.h"
 #include "project/ros/imu_node.h"
-#include "project/sensor/icm20948.h"
 
 #include "sensor_msgs/msg/imu.h"
 #include "sensor_msgs/msg/magnetic_field.h"
 
 #include "cmsis_os2.h"
 
+#include <math.h>
+
 void StartIMUTask(void *argument) {
     UNUSED(argument);
 
-    ICM20948_Init(&hi2c1, ICM20948_SDO_LOW);
-    ICM20948_Wake();
-    AK09916_Init(AK09916_CNTL2_CONT_MEASURE_2);
-    {
-        ICM20948_WriteGyroOffsetRegisters(&(ICM20948_int16_vector3){ 0 });
-        ICM20948_int16_vector3 off = { 0 };
-        ICM20948_MeasureGyroOffset(100, &off, 5);
-        ICM20948_WriteGyroOffsetRegisters(&off);
-    }
-
     while (1) {
-        // imu pub
         {
-            ICM20948_int16_vector3 raw_accel = { 0 };
-            ICM20948_int16_vector3 raw_gyro = { 0 };
-            ICM20948_ReadAccelGryoRegisters(&raw_accel, &raw_gyro);
-            const ICM20948_float_vector3 accel = ICM20948_ScaleSensorVector(&raw_accel, 0.0000610352F);
-            const ICM20948_float_vector3 gyro = ICM20948_ScaleSensorVector(&raw_gyro, 0.0076335F);
-
-            sensor_msgs__msg__Imu msg = { 0 };
-            msg.angular_velocity = (geometry_msgs__msg__Vector3){ gyro.x, gyro.y, gyro.z };
-            msg.linear_acceleration = (geometry_msgs__msg__Vector3){ accel.x, accel.y, accel.z };
-            msg.orientation = (geometry_msgs__msg__Quaternion){ 0, 0, 0, 1 };
-            msg.angular_velocity_covariance[0] = -1;
-            msg.linear_acceleration_covariance[0] = -1;
-            msg.orientation_covariance[0] = -1;
+            const uint32_t ms = osKernelGetTickCount();
+            const sensor_msgs__msg__Imu msg = {
+                .header.stamp.sec = (int32_t)(ms / 1000),
+                .header.stamp.nanosec = (ms % 1000) * 1000000,
+                .angular_velocity = Sensor_Imu_GetGyro(),
+                .linear_acceleration = Sensor_Imu_GetAccel(),
+                .orientation.w = 1,
+                .angular_velocity_covariance[0] = -1,
+                .linear_acceleration_covariance[0] = -1,
+                .orientation_covariance[0] = -1,
+            };
             const rcl_ret_t ret = rcl_publish(Ros_ImuNode_GetImuDataPub(), &msg, NULL);
             if (ret != RCL_RET_OK) {
             }
         }
-
-        // magnetic field pub
         {
-            ICM20948_int16_vector3 raw_mag = { 0 };
-            ICM20948_ReadMagRegisters(&raw_mag);
-            const ICM20948_float_vector3 mag = ICM20948_ScaleSensorVector(&raw_mag, 0.15F);
-
-            sensor_msgs__msg__MagneticField msg = { 0 };
-            msg.magnetic_field = (geometry_msgs__msg__Vector3){ mag.x, mag.y, mag.z };
-            msg.magnetic_field_covariance[0] = -1;
+            const uint32_t ms = osKernelGetTickCount();
+            const sensor_msgs__msg__MagneticField msg = {
+                .header.stamp.sec = (int32_t)(ms / 1000),
+                .header.stamp.nanosec = (ms % 1000) * 1000000,
+                .magnetic_field = Sensor_Imu_GetMag(),
+                .magnetic_field_covariance[0] = -1,
+            };
             const rcl_ret_t ret = rcl_publish(Ros_ImuNode_GetMagDataPub(), &msg, NULL);
             if (ret != RCL_RET_OK) {
             }
