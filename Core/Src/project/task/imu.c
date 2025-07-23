@@ -35,7 +35,7 @@ void StartIMUTask(void *argument) {
             msg.angular_velocity_covariance[0] = -1;
             msg.linear_acceleration_covariance[0] = -1;
             msg.orientation_covariance[0] = -1;
-            const rcl_ret_t ret = rcl_publish(&Ros_Imu_imu_data_pub, &msg, NULL);
+            const rcl_ret_t ret = rcl_publish(Ros_ImuNode_GetImuDataPub(), &msg, NULL);
             if (ret != RCL_RET_OK) {
             }
         }
@@ -49,7 +49,7 @@ void StartIMUTask(void *argument) {
             sensor_msgs__msg__MagneticField msg = { 0 };
             msg.magnetic_field = (geometry_msgs__msg__Vector3){ mag.x, mag.y, mag.z };
             msg.magnetic_field_covariance[0] = -1;
-            const rcl_ret_t ret = rcl_publish(&Ros_Imu_magnetometer_data_pub, &msg, NULL);
+            const rcl_ret_t ret = rcl_publish(Ros_ImuNode_GetMagDataPub(), &msg, NULL);
             if (ret != RCL_RET_OK) {
             }
         }

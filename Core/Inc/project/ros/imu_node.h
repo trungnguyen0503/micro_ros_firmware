@@ -4,10 +4,9 @@
 #include "rclc/node.h"
 #include "rclc/publisher.h"
 
-extern rcl_node_t Ros_Imu_node;
-extern rcl_publisher_t Ros_Imu_imu_data_pub;
-extern rcl_publisher_t Ros_Imu_magnetometer_data_pub;
-
-void Ros_Imu_InitNode();
+void Ros_ImuNode_Init();
+const rcl_node_t *Ros_ImuNode_GetHandle();
+const rcl_publisher_t *Ros_ImuNode_GetImuDataPub();
+const rcl_publisher_t *Ros_ImuNode_GetMagDataPub();
 
 #endif

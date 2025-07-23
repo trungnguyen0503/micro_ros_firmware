@@ -18,7 +18,7 @@ void StartInitTask(void *argument) {
     Sensor_MotorEncoder_Init();
 
     Ros_Init();
-    Ros_Imu_InitNode();
+    Ros_ImuNode_Init();
     Ros_BatteryNode_Init();
     Ros_Teleop_InitNode();
 
