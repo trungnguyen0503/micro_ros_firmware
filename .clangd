@@ -28,4 +28,5 @@ Diagnostics:
       readability-magic-numbers,
       readability-qualified-auto,
       readability-implicit-bool-conversion,
+      readability-function-cognitive-complexity,
     ]
