@@ -9,9 +9,13 @@
 #define Sensor_MotorEncoder_RIGHT_HTIM htim8
 
 void Sensor_MotorEncoder_Init(void);
-float Sensor_MotorEncoder_GetLeftRevCount();
-float Sensor_MotorEncoder_GetRightRevCount();
-float Sensor_MotorEncoder_GetLeftRpm();
-float Sensor_MotorEncoder_GetRightRpm();
+// Unit: revolution
+double Sensor_MotorEncoder_GetLeftRevCount();
+// Unit: revolution
+double Sensor_MotorEncoder_GetRightRevCount();
+// Unit: rad/s
+double Sensor_MotorEncoder_GetLeftAngularVel();
+// Unit: rad/s
+double Sensor_MotorEncoder_GetRightAngularVel();
 
 #endif
