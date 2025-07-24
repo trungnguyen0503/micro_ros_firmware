@@ -22,7 +22,7 @@ void StartInitTask(void *argument) {
 
     // Sync time with agent using NTP
     {
-        const rmw_ret_t ret = rmw_uros_sync_session(100);
+        const rmw_ret_t ret = rmw_uros_sync_session(1000);
         if (ret != RMW_RET_OK) {
             // TODO:
         }
