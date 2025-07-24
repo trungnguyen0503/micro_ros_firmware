@@ -1,8 +1,8 @@
 #include "project/sensor/imu.h"
 #include "project/icm20948.h"
 #include "project/ros/imu_node.h"
-
 #include "project/utility.h"
+
 #include "sensor_msgs/msg/imu.h"
 #include "sensor_msgs/msg/magnetic_field.h"
 

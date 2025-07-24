@@ -1,6 +1,6 @@
 #include "project/ros/battery_node.h"
-
 #include "project/utility.h"
+
 #include "sensor_msgs/msg/battery_state.h"
 
 #include "adc.h"
