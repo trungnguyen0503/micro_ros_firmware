@@ -2,6 +2,7 @@
 #include "project/ros/battery_node.h"
 #include "project/ros/global.h"
 #include "project/ros/imu_node.h"
+#include "project/ros/odometry_node.h"
 #include "project/ros/teleop_node.h"
 #include "project/sensor/imu.h"
 #include "project/sensor/motor_encoder.h"
@@ -29,6 +30,7 @@ void StartInitTask(void *argument) {
     }
 
     Ros_ImuNode_Init();
+    Ros_OdometryNode_Init();
     Ros_BatteryNode_Init();
     Ros_TeleopNode_Init();
 

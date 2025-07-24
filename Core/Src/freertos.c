@@ -25,9 +25,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "adc.h"
-#include "usart.h"
-
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -90,6 +87,13 @@ const osThreadAttr_t TimeSyncTask_attributes = {
   .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
+/* Definitions for OdometryTask */
+osThreadId_t OdometryTaskHandle;
+const osThreadAttr_t OdometryTask_attributes = {
+  .name = "OdometryTask",
+  .stack_size = 1000 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -101,6 +105,7 @@ void StartIMUTask(void *argument);
 void StartBatteryTask(void *argument);
 void StartTeleopTask(void *argument);
 void StartTimeSyncTask(void *argument);
+void StartOdometryTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -164,6 +169,9 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of TimeSyncTask */
   TimeSyncTaskHandle = osThreadNew(StartTimeSyncTask, NULL, &TimeSyncTask_attributes);
+
+  /* creation of OdometryTask */
+  OdometryTaskHandle = osThreadNew(StartOdometryTask, NULL, &OdometryTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -257,6 +265,20 @@ __weak void StartTimeSyncTask(void *argument)
   /* USER CODE BEGIN StartTimeSyncTask */
   UNUSED(argument);
   /* USER CODE END StartTimeSyncTask */
+}
+
+/* USER CODE BEGIN Header_StartOdometryTask */
+/**
+* @brief Function implementing the OdometryTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartOdometryTask */
+__weak void StartOdometryTask(void *argument)
+{
+  /* USER CODE BEGIN StartOdometryTask */
+  UNUSED(argument);
+  /* USER CODE END StartOdometryTask */
 }
 
 /* Private application code --------------------------------------------------*/
