@@ -2,6 +2,7 @@
 #include "project/icm20948.h"
 #include "project/ros/imu_node.h"
 
+#include "project/utility.h"
 #include "sensor_msgs/msg/imu.h"
 #include "sensor_msgs/msg/magnetic_field.h"
 
@@ -14,10 +15,8 @@ void StartIMUTask(void *argument) {
 
     while (1) {
         {
-            const uint32_t ms = osKernelGetTickCount();
             const sensor_msgs__msg__Imu msg = {
-                .header.stamp.sec = (int32_t)(ms / 1000),
-                .header.stamp.nanosec = (ms % 1000) * 1000000,
+                .header.stamp = Utility_GetRosTimeStamp(),
                 .angular_velocity = Sensor_Imu_GetGyro(),
                 .linear_acceleration = Sensor_Imu_GetAccel(),
                 .orientation.w = 1,
@@ -30,10 +29,8 @@ void StartIMUTask(void *argument) {
             }
         }
         {
-            const uint32_t ms = osKernelGetTickCount();
             const sensor_msgs__msg__MagneticField msg = {
-                .header.stamp.sec = (int32_t)(ms / 1000),
-                .header.stamp.nanosec = (ms % 1000) * 1000000,
+                .header.stamp = Utility_GetRosTimeStamp(),
                 .magnetic_field = Sensor_Imu_GetMag(),
                 .magnetic_field_covariance[0] = -1,
             };
