@@ -83,6 +83,13 @@ const osThreadAttr_t TeleopTask_attributes = {
   .stack_size = 1000 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
+/* Definitions for TimeSyncTask */
+osThreadId_t TimeSyncTaskHandle;
+const osThreadAttr_t TimeSyncTask_attributes = {
+  .name = "TimeSyncTask",
+  .stack_size = 256 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -93,6 +100,7 @@ void StartDebugTask(void *argument);
 void StartIMUTask(void *argument);
 void StartBatteryTask(void *argument);
 void StartTeleopTask(void *argument);
+void StartTimeSyncTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -153,6 +161,9 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of TeleopTask */
   TeleopTaskHandle = osThreadNew(StartTeleopTask, NULL, &TeleopTask_attributes);
+
+  /* creation of TimeSyncTask */
+  TimeSyncTaskHandle = osThreadNew(StartTimeSyncTask, NULL, &TimeSyncTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -232,6 +243,20 @@ __weak void StartTeleopTask(void *argument)
   /* USER CODE BEGIN StartTeleopTask */
   UNUSED(argument);
   /* USER CODE END StartTeleopTask */
+}
+
+/* USER CODE BEGIN Header_StartTimeSyncTask */
+/**
+* @brief Function implementing the TimeSyncTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartTimeSyncTask */
+__weak void StartTimeSyncTask(void *argument)
+{
+  /* USER CODE BEGIN StartTimeSyncTask */
+  UNUSED(argument);
+  /* USER CODE END StartTimeSyncTask */
 }
 
 /* Private application code --------------------------------------------------*/
