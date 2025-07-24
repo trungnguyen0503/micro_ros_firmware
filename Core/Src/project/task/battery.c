@@ -20,8 +20,10 @@ void StartBatteryTask(void *argument) {
         HAL_ADC_Stop(&hadc1);
 
         const float voltage = (float)adc_value / (float)adc_value_max * adc_voltage_ref * adc_scale;
+        const uint32_t ms = osKernelGetTickCount();
         const sensor_msgs__msg__BatteryState msg = {
-            .header.stamp.sec = (int32_t)(osKernelGetTickCount() / 1000),
+            .header.stamp.sec = (int32_t)(ms / 1000),
+            .header.stamp.nanosec = (ms % 1000) * 1000000,
             .voltage = voltage,
             .percentage = voltage / battery_voltage_max * 100.0F,
             .present = true,
