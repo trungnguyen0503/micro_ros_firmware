@@ -42,7 +42,7 @@ void Sensor_Imu_Init() {
 }
 
 geometry_msgs__msg__Vector3 Sensor_Imu_GetAccel() {
-    const double scale = 1.0 / (INT16_MAX / 2.0);
+    const double scale = 1.0 / (INT16_MAX / 2.0) * 9.80665;
 
     ICM20948_int16_vector3 raw = { 0 };
     ICM20948_ReadAccelRegisters(&raw);
