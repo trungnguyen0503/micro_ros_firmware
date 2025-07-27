@@ -16,6 +16,7 @@ void StartIMUTask(void *argument) {
     while (1) {
         {
             const sensor_msgs__msg__Imu msg = {
+                .header.frame_id = Utility_MakeStaticRosCString("base_link"),
                 .header.stamp = Utility_GetRosTimeStamp(),
                 .angular_velocity = Sensor_Imu_GetGyro(),
                 .linear_acceleration = Sensor_Imu_GetAccel(),
@@ -30,6 +31,7 @@ void StartIMUTask(void *argument) {
         }
         {
             const sensor_msgs__msg__MagneticField msg = {
+                .header.frame_id = Utility_MakeStaticRosCString("base_link"),
                 .header.stamp = Utility_GetRosTimeStamp(),
                 .magnetic_field = Sensor_Imu_GetMag(),
                 .magnetic_field_covariance[0] = -1,
