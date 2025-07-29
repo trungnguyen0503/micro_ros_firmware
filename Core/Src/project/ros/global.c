@@ -24,7 +24,6 @@ void Ros_Init() {
             // TODO:
         }
     }
-
     // Set Uros custom allocator
     {
         Ros_allocator.allocate = Uros_Allocate;
@@ -35,7 +34,6 @@ void Ros_Init() {
             // TODO:
         }
     }
-
     // Set support struct
     {
         const rcl_ret_t ret = rclc_support_init(&Ros_support, 0, NULL, &Ros_allocator);
@@ -43,6 +41,14 @@ void Ros_Init() {
             // TODO:
         }
     }
+    // Sync time with agent using NTP
+    {
+        const rmw_ret_t ret = rmw_uros_sync_session(1000);
+        if (ret != RMW_RET_OK) {
+            // TODO:
+        }
+    }
+
 }
 
 const rcl_allocator_t *Ros_GetAllocator() {
