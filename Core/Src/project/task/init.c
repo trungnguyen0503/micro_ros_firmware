@@ -6,16 +6,32 @@
 #include "project/ros/teleop_node.h"
 #include "project/sensor/imu.h"
 #include "project/sensor/motor_encoder.h"
+#include "project/utility.h"
 
 #include "cmsis_os2.h"
-#include "project/utility.h"
-#include "rmw_microros/time_sync.h"
+#include "FreeRTOS.h"
+#include "task.h"
 
 #include <inttypes.h>
 #include <math.h>
 
+extern osThreadId_t InitTaskHandle;
+
+static bool g_task_is_done = false;
+
+bool Task_Init_IsDone() {
+    return g_task_is_done;
+}
+
+void Task_Init_WaitUntilDone() {
+    while (!g_task_is_done) {
+        osDelay(100);
+    }
+}
+
 void StartInitTask(void *argument) {
     UNUSED(argument);
+
     Utility_Log(Utility_LogInfo, "Initialize task started");
 
     const uint32_t start_init_ms = osKernelGetTickCount();
@@ -34,9 +50,14 @@ void StartInitTask(void *argument) {
     Ros_BatteryNode_Init();
     Ros_TeleopNode_Init();
 
+    const uint32_t stack_left = uxTaskGetStackHighWaterMark(InitTaskHandle);
     const uint32_t end_init_ms = osKernelGetTickCount();
     const uint32_t init_time_ms = end_init_ms - start_init_ms;
-    Utility_Log(Utility_LogInfo, "Initializing finished, took %" PRIu32 "ms", init_time_ms);
+    Utility_Log(
+        Utility_LogInfo, "Initializing finished, took %" PRIu32 "ms. Memory left: %" PRIu32 "B",
+        init_time_ms, stack_left * 4
+    );
 
+    g_task_is_done = true;
     osThreadExit();
 }
