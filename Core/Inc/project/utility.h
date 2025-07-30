@@ -28,10 +28,15 @@ int64_t Utility_GetRosTimeDiffNs(
     builtin_interfaces__msg__Time t2
 );
 
+// Raw printing
 __printflike(1, 2)
 void Utility_Printf(const char *fmt, ...);
 
+// Printing with time stamp and log level
 __printflike(2, 3)
 void Utility_Log(enum Utility_LogLevel level, const char *fmt, ...);
+
+#define Utility_LogEx(level, fmt, ...) \
+    Utility_Log(level, "[%s:%d] " fmt, __FILE__, __LINE__, ##__VA_ARGS__)
 
 #endif

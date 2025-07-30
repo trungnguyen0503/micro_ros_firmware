@@ -40,27 +40,26 @@ void Utility_Printf(const char *const fmt, ...) {
 }
 
 void Utility_Log(enum Utility_LogLevel level, const char *fmt, ...) {
-    const char *level_str = NULL;
+    char level_char = 'U';
     switch (level) {
         case Utility_LogInfo:
-            level_str = "INFO";
+            level_char = 'I';
             break;
         case Utility_LogWarning:
-            level_str = "WARNING";
+            level_char = 'W';
             break;
         case Utility_LogError:
-            level_str = "ERROR";
+            level_char = 'E';
             break;
         case Utility_LogFatal:
-            level_str = "FATAL";
+            level_char = 'F';
             break;
         default:
-            level_str = "UNKNOWN";
             break;
     }
     const int header_len = snprintf(
-        (char *)g_log_buffer, LOG_BUF_SIZE, "[%10" PRIu32 "][%s] ",
-        osKernelGetTickCount(), level_str
+        (char *)g_log_buffer, LOG_BUF_SIZE, "[%10" PRIu32 "][%c] ",
+        osKernelGetTickCount(), level_char
     );
     va_list va = { 0 };
     va_start(va, fmt);
