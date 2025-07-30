@@ -50,6 +50,23 @@ void StartInitTask(void *argument) {
     Ros_BatteryNode_Init();
     Ros_TeleopNode_Init();
 
+    Utility_Log(Utility_LogInfo, "Rotating robot to calibrate magnetometer");
+    Actuator_Motor_SetLeftAngularVel(-Actuator_Motor_MAX_ANGULAR_VEL / 3);
+    Actuator_Motor_SetRightAngularVel(Actuator_Motor_MAX_ANGULAR_VEL / 3);
+    for (int i = 0; i < 75; i++) {
+        Sensor_Imu_GetMag();
+        osDelay(20);
+    }
+    Actuator_Motor_SetLeftAngularVel(Actuator_Motor_MAX_ANGULAR_VEL / 3);
+    Actuator_Motor_SetRightAngularVel(-Actuator_Motor_MAX_ANGULAR_VEL / 3);
+    for (int i = 0; i < 75; i++) {
+        Sensor_Imu_GetMag();
+        osDelay(20);
+    }
+    Actuator_Motor_SetLeftAngularVel(0);
+    Actuator_Motor_SetRightAngularVel(0);
+    Ros_OdometryNode_RecordInitialHeading();
+
     const uint32_t stack_left = uxTaskGetStackHighWaterMark(InitTaskHandle);
     const uint32_t end_init_ms = osKernelGetTickCount();
     const uint32_t init_time_ms = end_init_ms - start_init_ms;
