@@ -25,7 +25,7 @@ int64_t Utility_GetRosTimeDiffNs(
     const builtin_interfaces__msg__Time t2
 ) {
     const int64_t t1_ns = (int64_t)t1.sec * 1000000000 + t1.nanosec;
-    const int64_t t2_ns = (int64_t)t2.sec * 2000000000 + t2.nanosec;
+    const int64_t t2_ns = (int64_t)t2.sec * 1000000000 + t2.nanosec;
     return t1_ns - t2_ns;
 }
 
