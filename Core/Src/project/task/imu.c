@@ -1,6 +1,6 @@
 #include "project/sensor/imu.h"
-#include "project/icm20948.h"
 #include "project/ros/imu_node.h"
+#include "project/task/init.h"
 #include "project/utility.h"
 
 #include "sensor_msgs/msg/imu.h"
@@ -11,7 +11,8 @@
 #include <math.h>
 
 void StartIMUTask(void *argument) {
-    UNUSED(argument);
+    (void)argument;
+    Task_Init_WaitUntilDone();
 
     while (1) {
         {
@@ -27,6 +28,7 @@ void StartIMUTask(void *argument) {
             };
             const rcl_ret_t ret = rcl_publish(Ros_ImuNode_GetImuDataPub(), &msg, NULL);
             if (ret != RCL_RET_OK) {
+                Utility_Log(Utility_LogWarning, "/imu/data publish failed (code %d)", ret);
             }
         }
         {
@@ -38,6 +40,9 @@ void StartIMUTask(void *argument) {
             };
             const rcl_ret_t ret = rcl_publish(Ros_ImuNode_GetMagDataPub(), &msg, NULL);
             if (ret != RCL_RET_OK) {
+                Utility_Log(
+                    Utility_LogWarning, "/magnetic_field/data publish failed (code %d)", ret
+                );
             }
         }
         osDelay(50);
