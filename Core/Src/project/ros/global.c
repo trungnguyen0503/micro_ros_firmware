@@ -48,7 +48,6 @@ void Ros_Init() {
             // TODO:
         }
     }
-
 }
 
 const rcl_allocator_t *Ros_GetAllocator() {
