@@ -8,8 +8,6 @@
 
 #include "cmsis_os2.h"
 
-#include <math.h>
-
 void StartIMUTask(void *argument) {
     (void)argument;
     Task_Init_WaitUntilDone();
