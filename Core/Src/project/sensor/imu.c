@@ -26,9 +26,9 @@ geometry_msgs__msg__Vector3 Sensor_Imu_GetAccel() {
     ICM20948_int16_vector3 raw = { 0 };
     ICM20948_ReadAccelRegisters(&raw);
     return (geometry_msgs__msg__Vector3){
-        (double)raw.x * scale,
-        (double)raw.y * scale,
-        (double)raw.z * scale,
+        raw.x * scale,
+        raw.y * scale,
+        raw.z * scale,
     };
 }
 
@@ -38,9 +38,9 @@ geometry_msgs__msg__Vector3 Sensor_Imu_GetGyro() {
     ICM20948_int16_vector3 raw = { 0 };
     ICM20948_ReadGyroRegisters(&raw);
     return (geometry_msgs__msg__Vector3){
-        (double)raw.x * scale,
-        (double)raw.y * scale,
-        (double)raw.z * scale,
+        raw.x * scale,
+        raw.y * scale,
+        raw.z * scale,
     };
 }
 
