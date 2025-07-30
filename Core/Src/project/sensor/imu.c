@@ -14,31 +14,10 @@ void Sensor_Imu_Init() {
         &ICM20948_REG_GYRO_CONFIG_1,
         ICM20948_GYRO_FS_SEL_500 | ICM20948_GYRO_DLPFCFG_4
     );
+    // Set hard gyro offset measurement
+    ICM20948_WriteGyroOffsetRegisters(&(ICM20948_int16_vector3){ -54, 32, 7 });
     // Mag scale -4900 -> 4900 uT
     AK09916_Init(AK09916_CNTL2_CONT_MEASURE_2);
-    // Measure gyro offset
-    {
-        ICM20948_WriteGyroOffsetRegisters(&(ICM20948_int16_vector3){ 0 });
-        uint8_t sample_count = 100;
-        int64_t sum_x = 0;
-        int64_t sum_y = 0;
-        int64_t sum_z = 0;
-        for (uint8_t i = 0; i < sample_count; i++) {
-            ICM20948_int16_vector3 raw_gyro = { 0 };
-            ICM20948_ReadGyroRegisters(&raw_gyro);
-            sum_x += raw_gyro.x;
-            sum_y += raw_gyro.y;
-            sum_z += raw_gyro.z;
-            HAL_Delay(4);
-        }
-        const double off_x = round((double)sum_x / (double)sample_count);
-        const double off_y = round((double)sum_y / (double)sample_count);
-        const double off_z = round((double)sum_z / (double)sample_count);
-        const ICM20948_int16_vector3 off = {
-            (int16_t)off_x, (int16_t)off_y, (int16_t)off_z
-        };
-        ICM20948_WriteGyroOffsetRegisters(&off);
-    }
 }
 
 geometry_msgs__msg__Vector3 Sensor_Imu_GetAccel() {
@@ -71,8 +50,8 @@ geometry_msgs__msg__Vector3 Sensor_Imu_GetMag() {
     ICM20948_int16_vector3 raw = { 0 };
     ICM20948_ReadMagRegisters(&raw);
     return (geometry_msgs__msg__Vector3){
-        (double)raw.x * scale,
-        (double)raw.y * scale,
-        (double)raw.z * scale,
+        raw.x * scale,
+        raw.z * scale,
+        raw.y * scale,
     };
 }
