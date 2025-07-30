@@ -49,8 +49,8 @@
 osThreadId_t InitTaskHandle;
 const osThreadAttr_t InitTask_attributes = {
   .name = "InitTask",
-  .stack_size = 1000 * 4,
-  .priority = (osPriority_t) osPriorityHigh,
+  .stack_size = 1024 * 4,
+  .priority = (osPriority_t) osPriorityRealtime7,
 };
 /* Definitions for DebugTask */
 osThreadId_t DebugTaskHandle;
@@ -63,21 +63,21 @@ const osThreadAttr_t DebugTask_attributes = {
 osThreadId_t IMUTaskHandle;
 const osThreadAttr_t IMUTask_attributes = {
   .name = "IMUTask",
-  .stack_size = 1000 * 4,
+  .stack_size = 512 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for BatteryTask */
 osThreadId_t BatteryTaskHandle;
 const osThreadAttr_t BatteryTask_attributes = {
   .name = "BatteryTask",
-  .stack_size = 1000 * 4,
+  .stack_size = 512 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
 /* Definitions for TeleopTask */
 osThreadId_t TeleopTaskHandle;
 const osThreadAttr_t TeleopTask_attributes = {
   .name = "TeleopTask",
-  .stack_size = 1000 * 4,
+  .stack_size = 512 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for TimeSyncTask */
@@ -91,7 +91,7 @@ const osThreadAttr_t TimeSyncTask_attributes = {
 osThreadId_t OdometryTaskHandle;
 const osThreadAttr_t OdometryTask_attributes = {
   .name = "OdometryTask",
-  .stack_size = 1000 * 4,
+  .stack_size = 1024 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
 
