@@ -1,9 +1,11 @@
 #include "project/ros/teleop_node.h"
+#include "project/task/init.h"
 
 #include "cmsis_os2.h"
 
 void StartTeleopTask(void *argument) {
     (void)argument;
+    Task_Init_WaitUntilDone();
 
     while (1) {
         const uint32_t interval_ms = 50;
