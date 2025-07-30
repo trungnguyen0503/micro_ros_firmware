@@ -33,6 +33,7 @@ void StartBatteryTask(void *argument) {
 
         const rcl_ret_t ret = rcl_publish(Ros_BatteryNode_GetBatteryDataPub(), &msg, NULL);
         if (ret != RCL_RET_OK) {
+            Utility_Log(Utility_LogWarning, "Battery publisher failed (code %d)", ret);
         }
 
         osDelay(10000);
