@@ -1,4 +1,5 @@
 #include "project/ros/battery_node.h"
+#include "project/task/init.h"
 #include "project/utility.h"
 
 #include "sensor_msgs/msg/battery_state.h"
@@ -8,6 +9,7 @@
 
 void StartBatteryTask(void *argument) {
     UNUSED(argument);
+    Task_Init_WaitUntilDone();
 
     while (1) {
         const uint32_t adc_value_max = 4095;
