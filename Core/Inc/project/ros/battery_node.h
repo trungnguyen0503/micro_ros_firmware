@@ -7,5 +7,6 @@
 void Ros_BatteryNode_Init();
 const rcl_node_t *Ros_BatteryNode_GetHandle();
 const rcl_publisher_t *Ros_BatteryNode_GetBatteryDataPub();
+void Ros_BatteryNode_PublishBatteryData();
 
 #endif
