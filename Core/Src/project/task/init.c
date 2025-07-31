@@ -65,6 +65,7 @@ void StartInitTask(void *argument) {
     }
     Actuator_Motor_SetLeftAngularVel(0);
     Actuator_Motor_SetRightAngularVel(0);
+    osDelay(500);
     Ros_OdometryNode_RecordInitialHeading();
 
     const uint32_t stack_left = uxTaskGetStackHighWaterMark(InitTaskHandle);
