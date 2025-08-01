@@ -34,8 +34,8 @@ geometry_msgs__msg__Vector3 Sensor_Imu_GetAccel() {
     ICM20948_int16_vector3 raw = { 0 };
     ICM20948_ReadAccelRegisters(&raw);
     return (geometry_msgs__msg__Vector3){
-        raw.x * scale,
-        raw.y * scale,
+        -raw.x * scale,
+        -raw.y * scale,
         raw.z * scale,
     };
 }

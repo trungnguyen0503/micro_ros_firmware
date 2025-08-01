@@ -1,11 +1,15 @@
 #include "project/ros/odometry_node.h"
+#include "project/kinematics.h"
 #include "project/ros/global.h"
+#include "project/sensor/imu.h"
+#include "project/sensor/motor_encoder.h"
+#include "project/utility.h"
 
 #include "nav_msgs/msg/odometry.h"
 #include "sensor_msgs/msg/imu.h"
 #include "sensor_msgs/msg/magnetic_field.h"
 
-#define MSG_BUF_SIZE 8
+#include <math.h>
 
 static rcl_node_t g_node = { 0 };
 static rcl_subscription_t g_imu_data_sub = { 0 };
@@ -15,11 +19,10 @@ static rclc_executor_t g_exec = { 0 };
 static sensor_msgs__msg__Imu g_imu_data_msg = { 0 };
 static sensor_msgs__msg__MagneticField g_mag_data_msg = { 0 };
 
-static sensor_msgs__msg__Imu g_imu_buf[MSG_BUF_SIZE] = { 0 };
-static uint8_t g_imu_buf_idx = 0;
-
-static sensor_msgs__msg__MagneticField g_mag_buf[MSG_BUF_SIZE] = { 0 };
-static uint8_t g_mag_buf_idx = 0;
+static double g_initial_heading = 0;
+static builtin_interfaces__msg__Time g_odo_prev_stamp = { 0 };
+static geometry_msgs__msg__Vector3 g_odo_pos = { 0 };
+static double g_odo_yaw = 0;
 
 void Ros_OdometryNode_Init() {
     rclc_node_init_default(&g_node, "odometry_node", "", Ros_GetSupportStruct());
@@ -61,6 +64,11 @@ void Ros_OdometryNode_Init() {
     );
 }
 
+void Ros_OdometryNode_RecordInitialHeading() {
+    const geometry_msgs__msg__Vector3 mag = Sensor_Imu_GetMag();
+    g_initial_heading = atan2(mag.y, mag.x);
+}
+
 const rcl_node_t *Ros_OdometryNode_GetHandle() {
     return &g_node;
 }
@@ -82,13 +90,51 @@ rclc_executor_t *Ros_OdometryNode_GetExec() {
 }
 
 void Ros_OdometryNode_ImuDataCallback(const void *void_msg) {
-    const sensor_msgs__msg__Imu *msg = void_msg;
-    g_imu_buf_idx = (g_imu_buf_idx + 1) % MSG_BUF_SIZE;
-    g_imu_buf[g_imu_buf_idx] = *msg;
+    (void)void_msg;
 }
 
 void Ros_OdometryNode_MagDataCallback(const void *void_msg) {
-    const sensor_msgs__msg__MagneticField *msg = void_msg;
-    g_mag_buf_idx = (g_mag_buf_idx + 1) % MSG_BUF_SIZE;
-    g_mag_buf[g_mag_buf_idx] = *msg;
+    (void)void_msg;
+}
+
+void Ros_OdometryNode_PublishOdoData() {
+    const sensor_msgs__msg__Imu *imu = &g_imu_data_msg;
+    const sensor_msgs__msg__MagneticField *mag = &g_mag_data_msg;
+
+    const double dt = (double)Utility_GetRosTimeDiffNs(mag->header.stamp, g_odo_prev_stamp) / 1e9;
+
+    const double v_scalar = ({
+        const double wl = Sensor_MotorEncoder_GetLeftAngularVel();
+        const double wr = Sensor_MotorEncoder_GetRightAngularVel();
+        const double vl = Kinematics_AngularVelToLinearVel(wl);
+        const double vr = Kinematics_AngularVelToLinearVel(wr);
+        (vl + vr) / 2.0;
+    });
+    const double delta_gyro_yaw = imu->angular_velocity.z * dt;
+    const double mag_yaw = atan2(mag->magnetic_field.y, mag->magnetic_field.x);
+    const double gyro_weight = 0.5;
+    const double yaw = gyro_weight * (g_odo_yaw + delta_gyro_yaw) + (1 - gyro_weight) * mag_yaw;
+    const double delta_yaw = yaw - g_odo_yaw;
+    Utility_Log(Utility_LogInfo, "delta_yaw: %lf", delta_yaw);
+    g_odo_yaw = yaw;
+    g_odo_pos.x += v_scalar * cos(g_odo_yaw) * dt;
+    g_odo_pos.y += v_scalar * sin(g_odo_yaw) * dt;
+    g_odo_prev_stamp = mag->header.stamp;
+
+    nav_msgs__msg__Odometry msg = {
+        .header.stamp = Utility_GetRosTimeStamp(),
+        .header.frame_id = Utility_MakeStaticRosCString("odom"),
+        .child_frame_id = Utility_MakeStaticRosCString("base_link"),
+        .twist.twist.linear.x = v_scalar,
+        .twist.twist.angular.z = delta_yaw,
+        .pose.pose.position.x = g_odo_pos.x,
+        .pose.pose.position.y = g_odo_pos.y,
+        .pose.pose.orientation.z = sin(g_odo_yaw / 2),
+        .pose.pose.orientation.w = cos(g_odo_yaw / 2),
+    };
+
+    const rcl_ret_t ret = rcl_publish(Ros_OdometryNode_GetOdoDataPub(), &msg, NULL);
+    if (ret != RCL_RET_OK) {
+        Utility_Log(Utility_LogWarning, "Odometry publisher failed (code %d)", ret);
+    }
 }
