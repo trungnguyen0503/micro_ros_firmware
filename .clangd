@@ -6,6 +6,8 @@ CompileFlags:
   Remove: [-m*, -f*]
 
 Diagnostics:
+  UnusedIncludes: None
+  MissingIncludes: None
   ClangTidy:
     Add: [
       boost-*,
