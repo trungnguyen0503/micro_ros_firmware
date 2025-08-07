@@ -3,7 +3,6 @@
 
 #include "builtin_interfaces/msg/time.h"
 #include "rosidl_runtime_c/string.h"
-#include "sys/cdefs.h"
 
 enum Utility_LogLevel {
     Utility_LogInfo,
@@ -27,6 +26,8 @@ int64_t Utility_GetRosTimeDiffNs(
     builtin_interfaces__msg__Time t1,
     builtin_interfaces__msg__Time t2
 );
+
+bool Utility_IsRosTimeEqualZero(builtin_interfaces__msg__Time t);
 
 // Raw printing
 __printflike(1, 2)
