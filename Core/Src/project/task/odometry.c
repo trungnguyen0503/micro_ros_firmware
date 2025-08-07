@@ -11,13 +11,8 @@ void StartOdometryTask(void *argument) {
     while (1) {
         const uint32_t interval_ms = 50;
         const uint32_t interval_ns = interval_ms * 1000000;
-
-        const rcl_ret_t ret = rclc_executor_spin_some(Ros_OdometryNode_GetExec(), interval_ns);
-        if (ret != RCL_RET_OK) {
-            Utility_Log(Utility_LogWarning, "Odometry executor failed (code %d)", ret);
-        }
+        Ros_OdometryNode_SpinExec(interval_ns);
         Ros_OdometryNode_PublishOdoData();
-
         osDelay(interval_ms);
     }
 }
