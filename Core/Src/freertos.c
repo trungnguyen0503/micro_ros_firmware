@@ -73,13 +73,6 @@ const osThreadAttr_t BatteryTask_attributes = {
   .stack_size = 512 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
-/* Definitions for TeleopTask */
-osThreadId_t TeleopTaskHandle;
-const osThreadAttr_t TeleopTask_attributes = {
-  .name = "TeleopTask",
-  .stack_size = 512 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
-};
 /* Definitions for TimeSyncTask */
 osThreadId_t TimeSyncTaskHandle;
 const osThreadAttr_t TimeSyncTask_attributes = {
@@ -94,6 +87,20 @@ const osThreadAttr_t OdometryTask_attributes = {
   .stack_size = 1024 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
+/* Definitions for DiffDriveTask */
+osThreadId_t DiffDriveTaskHandle;
+const osThreadAttr_t DiffDriveTask_attributes = {
+  .name = "DiffDriveTask",
+  .stack_size = 512 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
+};
+/* Definitions for VelocityTask */
+osThreadId_t VelocityTaskHandle;
+const osThreadAttr_t VelocityTask_attributes = {
+  .name = "VelocityTask",
+  .stack_size = 512 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -103,9 +110,10 @@ void StartInitTask(void *argument);
 void StartDebugTask(void *argument);
 void StartIMUTask(void *argument);
 void StartBatteryTask(void *argument);
-void StartTeleopTask(void *argument);
 void StartTimeSyncTask(void *argument);
 void StartOdometryTask(void *argument);
+void StartDiffDriveTask(void *argument);
+void StartVelocityTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -164,14 +172,17 @@ void MX_FREERTOS_Init(void) {
   /* creation of BatteryTask */
   BatteryTaskHandle = osThreadNew(StartBatteryTask, NULL, &BatteryTask_attributes);
 
-  /* creation of TeleopTask */
-  TeleopTaskHandle = osThreadNew(StartTeleopTask, NULL, &TeleopTask_attributes);
-
   /* creation of TimeSyncTask */
   TimeSyncTaskHandle = osThreadNew(StartTimeSyncTask, NULL, &TimeSyncTask_attributes);
 
   /* creation of OdometryTask */
   OdometryTaskHandle = osThreadNew(StartOdometryTask, NULL, &OdometryTask_attributes);
+
+  /* creation of DiffDriveTask */
+  DiffDriveTaskHandle = osThreadNew(StartDiffDriveTask, NULL, &DiffDriveTask_attributes);
+
+  /* creation of VelocityTask */
+  VelocityTaskHandle = osThreadNew(StartVelocityTask, NULL, &VelocityTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -239,20 +250,6 @@ __weak void StartBatteryTask(void *argument)
   /* USER CODE END StartBatteryTask */
 }
 
-/* USER CODE BEGIN Header_StartTeleopTask */
-/**
-* @brief Function implementing the TeleopTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_StartTeleopTask */
-__weak void StartTeleopTask(void *argument)
-{
-  /* USER CODE BEGIN StartTeleopTask */
-  UNUSED(argument);
-  /* USER CODE END StartTeleopTask */
-}
-
 /* USER CODE BEGIN Header_StartTimeSyncTask */
 /**
 * @brief Function implementing the TimeSyncTask thread.
@@ -279,6 +276,35 @@ __weak void StartOdometryTask(void *argument)
   /* USER CODE BEGIN StartOdometryTask */
   UNUSED(argument);
   /* USER CODE END StartOdometryTask */
+}
+
+/* USER CODE BEGIN Header_StartDiffDriveTask */
+/**
+* @brief Function implementing the DiffDriveTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartDiffDriveTask */
+__weak void StartDiffDriveTask(void *argument)
+{
+  /* USER CODE BEGIN StartDiffDriveTask */
+  /* Infinite loop */
+  UNUSED(argument);
+  /* USER CODE END StartDiffDriveTask */
+}
+
+/* USER CODE BEGIN Header_StartVelocityTask */
+/**
+* @brief Function implementing the Velocity thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartVelocityTask */
+__weak void StartVelocityTask(void *argument)
+{
+  /* USER CODE BEGIN StartVelocityTask */
+  UNUSED(argument);
+  /* USER CODE END StartVelocityTask */
 }
 
 /* Private application code --------------------------------------------------*/

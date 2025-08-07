@@ -1,9 +1,10 @@
 #include "project/actuator/motor.h"
 #include "project/ros/battery_node.h"
+#include "project/ros/diff_drive_node.h"
 #include "project/ros/global.h"
 #include "project/ros/imu_node.h"
 #include "project/ros/odometry_node.h"
-#include "project/ros/teleop_node.h"
+#include "project/ros/vel_node.h"
 #include "project/sensor/imu.h"
 #include "project/sensor/motor_encoder.h"
 #include "project/utility.h"
@@ -13,7 +14,6 @@
 #include "task.h"
 
 #include <inttypes.h>
-#include <math.h>
 
 extern osThreadId_t InitTaskHandle;
 
@@ -29,8 +29,8 @@ void Task_Init_WaitUntilDone() {
     }
 }
 
-void StartInitTask(void *argument) {
-    UNUSED(argument);
+void StartInitTask(void *arg) {
+    (void)arg;
 
     Utility_Log(Utility_LogInfo, "Initialize task started");
 
@@ -48,17 +48,18 @@ void StartInitTask(void *argument) {
     Ros_ImuNode_Init();
     Ros_OdometryNode_Init();
     Ros_BatteryNode_Init();
-    Ros_TeleopNode_Init();
+    Ros_VelNode_Init();
+    Ros_DiffDriveNode_Init();
 
     Utility_Log(Utility_LogInfo, "Rotating robot to calibrate magnetometer");
-    Actuator_Motor_SetLeftAngularVel(-Actuator_Motor_MAX_ANGULAR_VEL / 3);
-    Actuator_Motor_SetRightAngularVel(Actuator_Motor_MAX_ANGULAR_VEL / 3);
+    Actuator_Motor_SetLeftAngularVel(-Actuator_Motor_MAX_ANGULAR_VEL / 2);
+    Actuator_Motor_SetRightAngularVel(Actuator_Motor_MAX_ANGULAR_VEL / 2);
     for (int i = 0; i < 75; i++) {
         Sensor_Imu_GetMag();
         osDelay(20);
     }
-    Actuator_Motor_SetLeftAngularVel(Actuator_Motor_MAX_ANGULAR_VEL / 3);
-    Actuator_Motor_SetRightAngularVel(-Actuator_Motor_MAX_ANGULAR_VEL / 3);
+    Actuator_Motor_SetLeftAngularVel(Actuator_Motor_MAX_ANGULAR_VEL / 2);
+    Actuator_Motor_SetRightAngularVel(-Actuator_Motor_MAX_ANGULAR_VEL / 2);
     for (int i = 0; i < 75; i++) {
         Sensor_Imu_GetMag();
         osDelay(20);
@@ -66,7 +67,7 @@ void StartInitTask(void *argument) {
     Actuator_Motor_SetLeftAngularVel(0);
     Actuator_Motor_SetRightAngularVel(0);
     osDelay(500);
-    Ros_OdometryNode_RecordInitialHeading();
+    Ros_VelNode_RecordInitialHeading();
 
     const uint32_t stack_left = uxTaskGetStackHighWaterMark(InitTaskHandle);
     const uint32_t end_init_ms = osKernelGetTickCount();
