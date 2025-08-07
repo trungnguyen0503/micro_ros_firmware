@@ -1,6 +1,7 @@
 #include "project/ros/vel_node.h"
 #include "project/kinematics.h"
 #include "project/ros/global.h"
+#include "project/ros/imu_node.h"
 #include "project/sensor/imu.h"
 #include "project/sensor/motor_encoder.h"
 #include "project/utility.h"
@@ -17,8 +18,6 @@
 
 #define FRAME_ID_CAPACITY 16
 #define NODE_NAME "vel_node"
-#define IMU_DATA_TOPIC "imu/data"
-#define MAG_DATA_TOPIC "magnetic_field/data"
 
 static rcl_node_t g_node = { 0 };
 static rcl_subscription_t g_imu_data_sub = { 0 };
@@ -46,12 +45,12 @@ void Ros_VelNode_Init() {
     rclc_subscription_init_best_effort(
         &g_imu_data_sub, &g_node,
         ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, Imu),
-        IMU_DATA_TOPIC
+        Ros_ImuNode_IMU_DATA_TOPIC
     );
     rclc_subscription_init_best_effort(
         &g_mag_data_sub, &g_node,
         ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, MagneticField),
-        MAG_DATA_TOPIC
+        Ros_ImuNode_MAG_DATA_TOPIC
     );
     rclc_publisher_init_best_effort(
         &g_vel_data_pub, &g_node,
