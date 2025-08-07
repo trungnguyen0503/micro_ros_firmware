@@ -3,39 +3,29 @@
 #include "project/sensor/imu.h"
 #include "project/utility.h"
 
+#include "rclc/node.h"
+#include "rclc/publisher.h"
 #include "sensor_msgs/msg/imu.h"
 #include "sensor_msgs/msg/magnetic_field.h"
 
-static rcl_node_t Ros_ImuNode_handle = { 0 };
-static rcl_publisher_t Ros_ImuNode_imu_data_pub = { 0 };
-static rcl_publisher_t Ros_ImuNode_mag_data_pub = { 0 };
+#define NODE_NAME "imu_node"
+
+static rcl_node_t g_node = { 0 };
+static rcl_publisher_t g_imu_data_pub = { 0 };
+static rcl_publisher_t g_mag_data_pub = { 0 };
 
 void Ros_ImuNode_Init() {
-    rclc_node_init_default(&Ros_ImuNode_handle, "imu_node", "", Ros_GetSupportStruct());
+    rclc_node_init_default(&g_node, NODE_NAME, "", Ros_GetSupportStruct());
     rclc_publisher_init_best_effort(
-        &Ros_ImuNode_imu_data_pub,
-        &Ros_ImuNode_handle,
+        &g_imu_data_pub, &g_node,
         ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, Imu),
-        "imu/data"
+        Ros_ImuNode_IMU_DATA_TOPIC
     );
     rclc_publisher_init_best_effort(
-        &Ros_ImuNode_mag_data_pub,
-        &Ros_ImuNode_handle,
+        &g_mag_data_pub, &g_node,
         ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, MagneticField),
-        "magnetic_field/data"
+        Ros_ImuNode_MAG_DATA_TOPIC
     );
-}
-
-const rcl_node_t *Ros_ImuNode_GetHandle() {
-    return &Ros_ImuNode_handle;
-}
-
-const rcl_publisher_t *Ros_ImuNode_GetImuDataPub() {
-    return &Ros_ImuNode_imu_data_pub;
-}
-
-const rcl_publisher_t *Ros_ImuNode_GetMagDataPub() {
-    return &Ros_ImuNode_mag_data_pub;
 }
 
 void Ros_ImuNode_PublishImuData() {
@@ -49,7 +39,7 @@ void Ros_ImuNode_PublishImuData() {
         .linear_acceleration_covariance[0] = -1,
         .orientation_covariance[0] = -1,
     };
-    const rcl_ret_t ret = rcl_publish(Ros_ImuNode_GetImuDataPub(), &msg, NULL);
+    const rcl_ret_t ret = rcl_publish(&g_imu_data_pub, &msg, NULL);
     if (ret != RCL_RET_OK) {
         Utility_Log(Utility_LogWarning, "/imu/data publish failed (code %d)", ret);
     }
@@ -62,7 +52,7 @@ void Ros_ImuNode_PublishMagData() {
         .magnetic_field = Sensor_Imu_GetMag(),
         .magnetic_field_covariance[0] = -1,
     };
-    const rcl_ret_t ret = rcl_publish(Ros_ImuNode_GetMagDataPub(), &msg, NULL);
+    const rcl_ret_t ret = rcl_publish(&g_mag_data_pub, &msg, NULL);
     if (ret != RCL_RET_OK) {
         Utility_Log(
             Utility_LogWarning, "/magnetic_field/data publish failed (code %d)", ret

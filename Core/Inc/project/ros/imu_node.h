@@ -1,13 +1,10 @@
 #ifndef ROS_IMU_NODE_H
 #define ROS_IMU_NODE_H
 
-#include "rclc/node.h"
-#include "rclc/publisher.h"
+#define Ros_ImuNode_IMU_DATA_TOPIC "imu/data"
+#define Ros_ImuNode_MAG_DATA_TOPIC "mag/data"
 
 void Ros_ImuNode_Init();
-const rcl_node_t *Ros_ImuNode_GetHandle();
-const rcl_publisher_t *Ros_ImuNode_GetImuDataPub();
-const rcl_publisher_t *Ros_ImuNode_GetMagDataPub();
 void Ros_ImuNode_PublishImuData();
 void Ros_ImuNode_PublishMagData();
 
