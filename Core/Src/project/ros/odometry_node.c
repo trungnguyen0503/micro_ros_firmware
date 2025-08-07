@@ -58,7 +58,7 @@ void Ros_OdometryNode_SpinExec(const uint32_t timeout_ns) {
 }
 
 void Ros_OdometryNode_PublishOdoData() {
-    const geometry_msgs__msg__TwistStamped *vel = &g_vel_data_msg;
+    const __auto_type vel = &g_vel_data_msg;
     if (Utility_IsRosTimeEqualZero(vel->header.stamp)) {
         return;
     }
@@ -67,9 +67,9 @@ void Ros_OdometryNode_PublishOdoData() {
         1000000000.0;
     const double lv = vel->twist.linear.x;
     const double av = vel->twist.angular.z;
-    g_odo_yaw += av;
     g_odo_x += lv * cos(g_odo_yaw) * dt;
     g_odo_y += lv * sin(g_odo_yaw) * dt;
+    g_odo_yaw += av;
 
     const nav_msgs__msg__Odometry msg = {
         .header.stamp = vel->header.stamp,
