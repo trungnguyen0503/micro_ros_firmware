@@ -76,7 +76,7 @@ void Ros_VelNode_RecordInitialHeading() {
 void Ros_VelNode_SpinExec(const uint32_t timeout_ns) {
     const rcl_ret_t ret = rclc_executor_spin_some(&g_exec, timeout_ns);
     if (ret != RCL_RET_OK) {
-        Utility_Log(Utility_LogWarning, NODE_NAME " executor failed (code %d)", (int)ret);
+        Utility_Log(Utility_LogWarning, "%s executor failed (code %d)", NODE_NAME, (int)ret);
     }
 }
 

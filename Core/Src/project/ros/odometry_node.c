@@ -51,7 +51,10 @@ void Ros_OdometryNode_Init() {
 }
 
 void Ros_OdometryNode_SpinExec(const uint32_t timeout_ns) {
-    rclc_executor_spin_some(&g_exec, timeout_ns);
+    const rcl_ret_t ret = rclc_executor_spin_some(&g_exec, timeout_ns);
+    if (ret != RCL_RET_OK) {
+        Utility_Log(Utility_LogWarning, "%s executor failed (code %d)", NODE_NAME, (int)ret);
+    }
 }
 
 void Ros_OdometryNode_PublishOdoData() {
@@ -84,7 +87,10 @@ void Ros_OdometryNode_PublishOdoData() {
 
     const rcl_ret_t ret = rcl_publish(&g_odo_data_pub, &msg, NULL);
     if (ret != RCL_RET_OK) {
-        Utility_Log(Utility_LogWarning, "Odometry publisher failed (code %d)", ret);
+        Utility_Log(
+            Utility_LogWarning, "%s failed to publish %s (code %d)",
+            NODE_NAME, Ros_OdometryNode_ODOMETRY_DATA_TOPIC, (int)ret
+        );
     }
 }
 
