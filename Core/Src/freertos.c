@@ -78,7 +78,7 @@ osThreadId_t TimeSyncTaskHandle;
 const osThreadAttr_t TimeSyncTask_attributes = {
   .name = "TimeSyncTask",
   .stack_size = 256 * 4,
-  .priority = (osPriority_t) osPriorityLow,
+  .priority = (osPriority_t) osPriorityHigh,
 };
 /* Definitions for OdometryTask */
 osThreadId_t OdometryTaskHandle;
@@ -92,7 +92,7 @@ osThreadId_t DiffDriveTaskHandle;
 const osThreadAttr_t DiffDriveTask_attributes = {
   .name = "DiffDriveTask",
   .stack_size = 512 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
+  .priority = (osPriority_t) osPriorityHigh,
 };
 /* Definitions for VelocityTask */
 osThreadId_t VelocityTaskHandle;
@@ -288,7 +288,6 @@ __weak void StartOdometryTask(void *argument)
 __weak void StartDiffDriveTask(void *argument)
 {
   /* USER CODE BEGIN StartDiffDriveTask */
-  /* Infinite loop */
   UNUSED(argument);
   /* USER CODE END StartDiffDriveTask */
 }
