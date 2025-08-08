@@ -1,8 +1,6 @@
 #include "project/utility.h"
 
 #include "cmsis_os2.h"
-#include "rmw_microros/time_sync.h"
-
 #include "usart.h"
 
 #include <inttypes.h>
