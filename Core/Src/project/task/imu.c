@@ -10,6 +10,6 @@ void StartIMUTask(void *argument) {
     while (1) {
         Ros_ImuNode_PublishImuData();
         Ros_ImuNode_PublishMagData();
-        osDelay(50);
+        osDelay(40);
     }
 }
