@@ -59,9 +59,6 @@ void Ros_OdometryNode_SpinExec(const uint32_t timeout_ns) {
 
 void Ros_OdometryNode_PublishOdoData() {
     const __auto_type vel = &g_vel_data_msg;
-    if (Utility_IsRosTimeEqualZero(vel->header.stamp)) {
-        return;
-    }
     const double dt =
         (double)Utility_GetRosTimeDiffNs(vel->header.stamp, g_odo_prev_stamp) /
         1000000000.0;
@@ -96,4 +93,5 @@ void Ros_OdometryNode_PublishOdoData() {
 
 static void VelDataCallback(const void *void_msg) {
     (void)void_msg;
+    Ros_OdometryNode_PublishOdoData();
 }

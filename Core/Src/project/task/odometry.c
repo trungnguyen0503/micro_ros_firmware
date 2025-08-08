@@ -9,10 +9,6 @@ void StartOdometryTask(void *argument) {
     Task_Init_WaitUntilDone();
 
     while (1) {
-        const uint32_t interval_ms = 50;
-        const uint32_t interval_ns = interval_ms * 1000000;
-        Ros_OdometryNode_SpinExec(interval_ns);
-        Ros_OdometryNode_PublishOdoData();
-        osDelay(interval_ms);
+        Ros_OdometryNode_SpinExec(RCL_MS_TO_NS(50));
     }
 }
