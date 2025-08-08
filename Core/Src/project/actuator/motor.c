@@ -1,4 +1,5 @@
 #include "project/actuator/motor.h"
+#include "project/utility.h"
 
 #include <math.h>
 
@@ -9,15 +10,23 @@ void Actuator_Motor_Init(void) {
     HAL_TIM_PWM_Start(&Actuator_Motor_RIGHT_HTIM, Actuator_Motor_RIGHT_FORWARD_CHANNEL);
 }
 
-void Actuator_Motor_SetLeftPwmPercent(const double percent) {
+void Actuator_Motor_SetLeftPwmPercent(double percent) {
     __HAL_TIM_SET_COMPARE(&Actuator_Motor_LEFT_HTIM, Actuator_Motor_LEFT_BACKWARD_CHANNEL, 0);
     __HAL_TIM_SET_COMPARE(&Actuator_Motor_LEFT_HTIM, Actuator_Motor_LEFT_FORWARD_CHANNEL, 0);
     if (percent > 100.0) {
-        // TODO: invalid percentage
+        Utility_Log(
+            Utility_LogWarning,
+            "Requested PWM%% for left motor (%.2lf) is higher than 100", percent
+        );
+        percent = 100.0;
         return;
     }
     if (percent < -100.0) {
-        // TODO: invalid percentage
+        Utility_Log(
+            Utility_LogWarning,
+            "Requested PWM%% for left motor (%.2lf) is lower than -100", percent
+        );
+        percent = -100.0;
         return;
     }
     double percent_postive = percent;
@@ -31,15 +40,23 @@ void Actuator_Motor_SetLeftPwmPercent(const double percent) {
     __HAL_TIM_SET_COMPARE(&Actuator_Motor_LEFT_HTIM, channel, compare);
 }
 
-void Actuator_Motor_SetRightPwmPercent(const double percent) {
+void Actuator_Motor_SetRightPwmPercent(double percent) {
     __HAL_TIM_SET_COMPARE(&Actuator_Motor_RIGHT_HTIM, Actuator_Motor_RIGHT_BACKWARD_CHANNEL, 0);
     __HAL_TIM_SET_COMPARE(&Actuator_Motor_RIGHT_HTIM, Actuator_Motor_RIGHT_FORWARD_CHANNEL, 0);
     if (percent > 100.0) {
-        // TODO: invalid percentage
+        Utility_Log(
+            Utility_LogWarning,
+            "Requested PWM%% for right motor (%.2lf) is higher than 100", percent
+        );
+        percent = 100.0;
         return;
     }
     if (percent < -100.0) {
-        // TODO: invalid percentage
+        Utility_Log(
+            Utility_LogWarning,
+            "Requested PWM%% for right motor (%.2lf) is lower than -100", percent
+        );
+        percent = -100.0;
         return;
     }
     double percent_postive = percent;
@@ -57,30 +74,50 @@ double Actuator_Motor_LeftAngularVelToPwmPercent(const double w) {
     const double rpm = w * 60.0 / 2.0 / M_PI;
     const double abs_rpm = fabs(rpm);
     if (abs_rpm < Actuator_Motor_MIN_RPM) {
+        Utility_Log(
+            Utility_LogWarning,
+            "RPM requested for left motor (%.2lf) is lower than min RPM (%.2lf)",
+            abs_rpm, Actuator_Motor_MIN_RPM
+        );
         return 0.0;
     }
     if (abs_rpm > Actuator_Motor_MAX_RPM) {
+        Utility_Log(
+            Utility_LogWarning,
+            "RPM requested for left motor (%.2lf) is higher than max RPM (%.2lf)",
+            abs_rpm, Actuator_Motor_MAX_RPM
+        );
         return rpm >= 0 ? Actuator_Motor_MAX_RPM : -Actuator_Motor_MAX_RPM;
     }
     if (rpm >= 0) {
-        return 52.5 + 0.146 * abs_rpm + 3.76E-5 * abs_rpm * abs_rpm;
+        return 52.5 + (0.146 * abs_rpm) + (3.76E-5 * abs_rpm * abs_rpm);
     }
-    return -52.0 - 0.159 * abs_rpm - 3.38E-5 * abs_rpm * abs_rpm;
+    return -52.0 - (0.159 * abs_rpm) - (3.38E-5 * abs_rpm * abs_rpm);
 }
 
 double Actuator_Motor_RightAngularVelToPwmPercent(const double w) {
     const double rpm = w * 60.0 / 2.0 / M_PI;
     const double abs_rpm = fabs(rpm);
     if (abs_rpm < Actuator_Motor_MIN_RPM) {
+        Utility_Log(
+            Utility_LogWarning,
+            "RPM requested for right motor (%.2lf) is lower than min RPM (%.2lf)",
+            abs_rpm, Actuator_Motor_MIN_RPM
+        );
         return 0.0;
     }
     if (abs_rpm > Actuator_Motor_MAX_RPM) {
+        Utility_Log(
+            Utility_LogWarning,
+            "RPM requested for right motor (%.2lf) is higher than max RPM (%.2lf)",
+            abs_rpm, Actuator_Motor_MAX_RPM
+        );
         return rpm >= 0 ? Actuator_Motor_MAX_RPM : -Actuator_Motor_MAX_RPM;
     }
     if (rpm >= 0) {
-        return 52.0 + 0.174 * abs_rpm - 1.44E-5 * abs_rpm * abs_rpm;
+        return 52.0 + (0.174 * abs_rpm) - (1.44E-5 * abs_rpm * abs_rpm);
     }
-    return -52.7 - 0.152 * abs_rpm - 1.08E-5 * abs_rpm * abs_rpm;
+    return -52.7 - (0.152 * abs_rpm) - (1.08E-5 * abs_rpm * abs_rpm);
 }
 
 void Actuator_Motor_SetLeftAngularVel(const double w) {
