@@ -35,7 +35,7 @@ static sensor_msgs__msg__MagneticField g_mag_data_msg = {
 };
 
 static double g_last_heading = 0;
-static builtin_interfaces__msg__Time g_last_vel_stamp = { 0 };
+static builtin_interfaces__msg__Time g_last_mag_stamp = { 0 };
 
 static void ImuDataCallback(const void *void_msg);
 static void MagDataCallback(const void *void_msg);
@@ -84,8 +84,6 @@ void Ros_VelNode_PublishVel() {
     const __auto_type imu = &g_imu_data_msg;
     const __auto_type mag = &g_mag_data_msg;
 
-    const double heading = atan2(mag->magnetic_field.y, mag->magnetic_field.x);
-
     const double linear = ({
         const double wl = Sensor_MotorEncoder_GetLeftAngularVel();
         const double wr = Sensor_MotorEncoder_GetRightAngularVel();
@@ -96,15 +94,15 @@ void Ros_VelNode_PublishVel() {
 
     const double angular = ({
         const double dt =
-            (double)Utility_GetRosTimeDiffNs(mag->header.stamp, g_last_vel_stamp) /
+            (double)Utility_GetRosTimeDiffNs(mag->header.stamp, g_last_mag_stamp) /
             1000000000.0;
+        g_last_mag_stamp = mag->header.stamp;
+        const double heading = atan2(mag->magnetic_field.y, mag->magnetic_field.x);
+        g_last_heading = heading;
         const double gyro_angular = imu->angular_velocity.z;
         const double mag_angular = (heading - g_last_heading) / dt;
         (gyro_angular * 0.5) + (mag_angular * 0.5);
     });
-
-    g_last_vel_stamp = mag->header.stamp;
-    g_last_heading = heading;
 
     const geometry_msgs__msg__TwistStamped msg = {
         .header.stamp = Utility_GetRosTimeStamp(),
