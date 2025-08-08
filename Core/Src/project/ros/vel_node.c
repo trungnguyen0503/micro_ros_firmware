@@ -58,6 +58,7 @@ void Ros_VelNode_Init() {
         Ros_VelNode_VEL_DATA_TOPIC
     );
     rclc_executor_init(&g_exec, &Ros_GetSupportStruct()->context, 2, Ros_GetAllocator());
+    rclc_executor_set_trigger(&g_exec, rclc_executor_trigger_all, NULL);
     rclc_executor_add_subscription(
         &g_exec, &g_imu_data_sub,
         &g_imu_data_msg, ImuDataCallback, ON_NEW_DATA
@@ -105,7 +106,7 @@ void Ros_VelNode_PublishVel() {
     });
 
     const geometry_msgs__msg__TwistStamped msg = {
-        .header.stamp = Utility_GetRosTimeStamp(),
+        .header.stamp = mag->header.stamp,
         .header.frame_id = Utility_MakeStaticRosCString("base_link"),
         .twist.linear.x = linear,
         .twist.angular.z = angular,
@@ -125,4 +126,5 @@ static void ImuDataCallback(const void *const void_msg) {
 
 static void MagDataCallback(const void *const void_msg) {
     (void)void_msg;
+    Ros_VelNode_PublishVel();
 }
