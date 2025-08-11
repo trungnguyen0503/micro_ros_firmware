@@ -3,11 +3,9 @@
 
 #include <stdint.h>
 
-#define Ros_VelNode_VEL_DATA_TOPIC "vel/data"
+#define Ros_VelNode_VEL_DATA_TOPIC "vel_encoder/data"
 
 void Ros_VelNode_Init();
-void Ros_VelNode_RecordInitialHeading();
-void Ros_VelNode_SpinExec(uint32_t timeout_ns);
 void Ros_VelNode_PublishVel();
 
 #endif
