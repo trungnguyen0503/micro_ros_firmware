@@ -25,7 +25,7 @@ double Sensor_MotorEncoder_GetRightRevCount() {
     g_last_right_read_tick = osKernelGetTickCount();
     const uint32_t raw_count = __HAL_TIM_GET_COUNTER(&Sensor_MotorEncoder_RIGHT_HTIM);
     __HAL_TIM_SET_COUNTER(&Sensor_MotorEncoder_RIGHT_HTIM, COUNT_ROOT);
-    const int32_t count = (int32_t)raw_count - COUNT_ROOT;
+    const int32_t count = COUNT_ROOT - (int32_t)raw_count;
     return (double)count / Sensor_MotorEncoder_CPR;
 }
 
