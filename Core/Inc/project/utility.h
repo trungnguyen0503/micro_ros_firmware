@@ -28,6 +28,13 @@ static inline int64_t Utility_GetRosTimeDiffNs(
     builtin_interfaces__msg__Time t2
 );
 
+// Convert ROS time message to nanoseconds
+static inline int64_t Utility_RosTimeToNs(builtin_interfaces__msg__Time t);
+
+// Convert nanoseconds to ROS time message
+static inline builtin_interfaces__msg__Time Utility_NsToRosTime(int64_t ns);
+
+// Check if second and nanosecond is zero
 static inline bool Utility_IsRosTimeEqualZero(builtin_interfaces__msg__Time t);
 
 // Raw printing
@@ -51,12 +58,23 @@ static inline int64_t Utility_GetRosTimeDiffNs(
     const builtin_interfaces__msg__Time t1,
     const builtin_interfaces__msg__Time t2
 ) {
-    const int64_t t1_ns = ((int64_t)t1.sec * 1000000000) + t1.nanosec;
-    const int64_t t2_ns = ((int64_t)t2.sec * 1000000000) + t2.nanosec;
+    const int64_t t1_ns = Utility_RosTimeToNs(t1);
+    const int64_t t2_ns = Utility_RosTimeToNs(t2);
     return t1_ns - t2_ns;
 }
 
-static inline bool Utility_IsRosTimeEqualZero(builtin_interfaces__msg__Time t) {
+static inline int64_t Utility_RosTimeToNs(const builtin_interfaces__msg__Time t) {
+    return ((int64_t)t.sec * 1000000000) + t.nanosec;
+}
+
+static inline builtin_interfaces__msg__Time Utility_NsToRosTime(int64_t ns) {
+    return (builtin_interfaces__msg__Time) {
+        .sec = (int32_t)(ns / 1000000000),
+        .nanosec = (uint32_t)ns % 1000000000,
+    };
+}
+
+static inline bool Utility_IsRosTimeEqualZero(const builtin_interfaces__msg__Time t) {
     return t.sec == 0 && t.nanosec == 0;
 }
 
