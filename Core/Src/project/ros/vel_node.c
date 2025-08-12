@@ -14,8 +14,11 @@
 
 #include <math.h>
 
-#define FRAME_ID_CAPACITY 16
 #define NODE_NAME "vel_encoder_node"
+
+enum {
+    FRAME_ID_CAPACITY = 16
+};
 
 static rcl_node_t g_node = { 0 };
 static rcl_publisher_t g_vel_data_pub = { 0 };
