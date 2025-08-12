@@ -2,61 +2,79 @@
 #include "project/actuator/motor.h"
 #include "project/kinematics.h"
 #include "project/ros/global.h"
+#include "project/ros/vel_node.h"
 #include "project/utility.h"
 
+#include "geometry_msgs/msg/twist.h"
+#include "geometry_msgs/msg/twist_stamped.h"
 #include "rclc/executor.h"
-#include "rclc/node.h"
-#include "rclc/subscription.h"
-#include "std_msgs/msg/float64.h"
+#include "rclc/rclc.h"
+
+typedef struct PID {
+    double kp;
+    double ki;
+    double kd;
+    double setpoint;
+    double prev_error;
+    double integral;
+} PID;
 
 #define NODE_NAME "diff_drive_node"
-#define CMD_VEL_LEFT_TOPIC "cmd_vel_left"
-#define CMD_VEL_RIGHT_TOPIC "cmd_vel_right"
+#define CMD_VEL_TOPIC "cmd_vel"
+
+enum {
+    FRAME_ID_CAPACITY = 16
+};
 
 static rcl_node_t g_node = { 0 };
-static rcl_subscription_t g_cmd_vel_left_sub = { 0 };
-static rcl_subscription_t g_cmd_vel_right_sub = { 0 };
+static rcl_subscription_t g_cmd_vel_sub = { 0 };
+static rcl_subscription_t g_vel_encoder_sub = { 0 };
 static rclc_executor_t g_exec = { 0 };
 
-static std_msgs__msg__Float64 g_cmd_vel_left_msg = { 0 };
-static std_msgs__msg__Float64 g_cmd_vel_right_msg = { 0 };
+static geometry_msgs__msg__Twist g_cmd_vel_pid_msg = { 0 };
+static geometry_msgs__msg__TwistStamped g_vel_encoder_msg = {
+    .header.frame_id.data = (char[FRAME_ID_CAPACITY]){ 0 },
+    .header.frame_id.capacity = FRAME_ID_CAPACITY,
+};
 
-static void CmdVelLeftCallback(const void *void_msg);
-static void CmdVelRightCallback(const void *void_msg);
+static int64_t g_last_vel_encoder_stamp_ns = 0;
+
+static PID g_linear_vel_pid = {
+    .kp = 0,
+    .ki = 0,
+    .kd = 0,
+};
+
+static PID g_angular_vel_pid = {
+    .kp = 0,
+    .ki = 0,
+    .kd = 0,
+};
+
+static double PID_Compute(PID *pid, double observation, double dt);
+static void CmdVelCallback(const void *void_msg);
+static void VelEncoderCallback(const void *void_msg);
 
 void Ros_DiffDriveNode_Init() {
     rclc_node_init_default(&g_node, NODE_NAME, "", Ros_GetSupportStruct());
-    const rmw_qos_profile_t sub_qos_profile = {
-        .avoid_ros_namespace_conventions = false,
-        .deadline = RMW_DURATION_UNSPECIFIED,
-        .depth = 10,
-        .durability = RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL,
-        .history = RMW_QOS_POLICY_HISTORY_KEEP_LAST,
-        .lifespan = RMW_DURATION_UNSPECIFIED,
-        .liveliness = RMW_QOS_POLICY_LIVELINESS_AUTOMATIC,
-        .liveliness_lease_duration = RMW_DURATION_UNSPECIFIED,
-        .reliability = RMW_QOS_POLICY_RELIABILITY_RELIABLE,
-    };
-    rclc_subscription_init(
-        &g_cmd_vel_left_sub, &g_node,
-        ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float64),
-        CMD_VEL_LEFT_TOPIC,
-        &sub_qos_profile
+    rclc_subscription_init_best_effort(
+        &g_cmd_vel_sub, &g_node,
+        ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),
+        CMD_VEL_TOPIC
     );
-    rclc_subscription_init(
-        &g_cmd_vel_right_sub, &g_node,
-        ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float64),
-        CMD_VEL_RIGHT_TOPIC,
-        &sub_qos_profile
+    rclc_subscription_init_best_effort(
+        &g_vel_encoder_sub, &g_node,
+        ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, TwistStamped),
+        Ros_VelNode_VEL_DATA_TOPIC
     );
     rclc_executor_init(&g_exec, &Ros_GetSupportStruct()->context, 2, Ros_GetAllocator());
     rclc_executor_add_subscription(
-        &g_exec, &g_cmd_vel_left_sub,
-        &g_cmd_vel_left_msg, CmdVelLeftCallback, ON_NEW_DATA
+        &g_exec, &g_cmd_vel_sub,
+        &g_cmd_vel_pid_msg, CmdVelCallback, ON_NEW_DATA
     );
     rclc_executor_add_subscription(
-        &g_exec, &g_cmd_vel_right_sub,
-        &g_cmd_vel_right_msg, CmdVelRightCallback, ON_NEW_DATA
+        &g_exec, &g_vel_encoder_sub,
+        &g_vel_encoder_msg, VelEncoderCallback, ON_NEW_DATA
     );
 }
 
@@ -67,18 +85,34 @@ void Ros_DiffDriveNode_SpinExec(const uint32_t timeout_ns) {
     }
 }
 
-static void CmdVelLeftCallback(const void *const void_msg) {
-    Utility_Log(Utility_LogInfo, "%s received", CMD_VEL_LEFT_TOPIC);
-    const std_msgs__msg__Float64 *msg = void_msg;
-    const double v = msg->data;
-    const double w = Kinematics_LinearVelToAngularVel(v);
-    Actuator_Motor_SetLeftAngularVel(w);
+static double PID_Compute(PID *const pid, const double observation, const double dt) {
+    const double error = pid->setpoint - observation;
+    pid->integral += error * dt;
+    const double derivative = dt > 0 ? (error - pid->prev_error) / dt : 0;
+    pid->prev_error = error;
+    return (pid->kp * error) + (pid->ki * pid->integral) + (pid->kd * derivative);
 }
 
-static void CmdVelRightCallback(const void *const void_msg) {
-    Utility_Log(Utility_LogInfo, "%s received", CMD_VEL_RIGHT_TOPIC);
-    const std_msgs__msg__Float64 *msg = void_msg;
-    const double v = msg->data;
-    const double w = Kinematics_LinearVelToAngularVel(v);
-    Actuator_Motor_SetRightAngularVel(w);
+static void CmdVelCallback(const void *const void_msg) {
+    Utility_Log(Utility_LogInfo, "%s received", CMD_VEL_TOPIC);
+    const geometry_msgs__msg__Twist *msg = void_msg;
+    g_linear_vel_pid.setpoint = msg->linear.x;
+    g_angular_vel_pid.setpoint = msg->angular.z;
+}
+
+static void VelEncoderCallback(const void *const void_msg) {
+    const geometry_msgs__msg__TwistStamped *msg = void_msg;
+    const double lv = msg->twist.linear.x;
+    const double av = msg->twist.angular.z;
+    const int64_t stamp_ns = Utility_RosTimeToNs(msg->header.stamp);
+    const double dt = (double)(stamp_ns - g_last_vel_encoder_stamp_ns) / 1000000000;
+    const double lv_pid = PID_Compute(&g_linear_vel_pid, lv, dt);
+    const double av_pid = PID_Compute(&g_angular_vel_pid, av, dt);
+    const double v_left = lv_pid - (av_pid * Kinematics_WHEEL_BASE / 2);
+    const double v_right = lv_pid + (av_pid * Kinematics_WHEEL_BASE / 2);
+    const double w_left = Kinematics_LinearVelToAngularVel(v_left);
+    const double w_right = Kinematics_LinearVelToAngularVel(v_right);
+    Actuator_Motor_SetLeftAngularVel(w_left);
+    Actuator_Motor_SetRightAngularVel(w_right);
+    g_last_vel_encoder_stamp_ns = stamp_ns;
 }
