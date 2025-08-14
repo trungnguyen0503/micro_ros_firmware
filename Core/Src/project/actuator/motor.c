@@ -13,6 +13,16 @@ void Actuator_Motor_Init(void) {
 void Actuator_Motor_SetLeftPwmPercent(double percent) {
     __HAL_TIM_SET_COMPARE(&Actuator_Motor_LEFT_HTIM, Actuator_Motor_LEFT_BACKWARD_CHANNEL, 0);
     __HAL_TIM_SET_COMPARE(&Actuator_Motor_LEFT_HTIM, Actuator_Motor_LEFT_FORWARD_CHANNEL, 0);
+    const uint32_t autoreload = __HAL_TIM_GET_AUTORELOAD(&Actuator_Motor_LEFT_HTIM);
+    if (percent == 0) {
+        __HAL_TIM_SET_COMPARE(
+            &Actuator_Motor_LEFT_HTIM, Actuator_Motor_LEFT_BACKWARD_CHANNEL, autoreload
+        );
+        __HAL_TIM_SET_COMPARE(
+            &Actuator_Motor_LEFT_HTIM, Actuator_Motor_LEFT_FORWARD_CHANNEL, autoreload
+        );
+        return;
+    }
     if (percent > 100.0) {
         Utility_Log(
             Utility_LogWarning,
@@ -33,7 +43,6 @@ void Actuator_Motor_SetLeftPwmPercent(double percent) {
         percent_postive = -percent;
         channel = Actuator_Motor_LEFT_BACKWARD_CHANNEL;
     }
-    const uint32_t autoreload = __HAL_TIM_GET_AUTORELOAD(&Actuator_Motor_LEFT_HTIM);
     const uint16_t compare = (uint16_t)((double)autoreload / 100.0 * percent_postive);
     __HAL_TIM_SET_COMPARE(&Actuator_Motor_LEFT_HTIM, channel, compare);
 }
@@ -41,6 +50,16 @@ void Actuator_Motor_SetLeftPwmPercent(double percent) {
 void Actuator_Motor_SetRightPwmPercent(double percent) {
     __HAL_TIM_SET_COMPARE(&Actuator_Motor_RIGHT_HTIM, Actuator_Motor_RIGHT_BACKWARD_CHANNEL, 0);
     __HAL_TIM_SET_COMPARE(&Actuator_Motor_RIGHT_HTIM, Actuator_Motor_RIGHT_FORWARD_CHANNEL, 0);
+    const uint32_t autoreload = __HAL_TIM_GET_AUTORELOAD(&Actuator_Motor_RIGHT_HTIM);
+    if (percent == 0) {
+        __HAL_TIM_SET_COMPARE(
+            &Actuator_Motor_RIGHT_HTIM, Actuator_Motor_RIGHT_BACKWARD_CHANNEL, autoreload
+        );
+        __HAL_TIM_SET_COMPARE(
+            &Actuator_Motor_RIGHT_HTIM, Actuator_Motor_RIGHT_FORWARD_CHANNEL, autoreload
+        );
+        return;
+    }
     if (percent > 100.0) {
         Utility_Log(
             Utility_LogWarning,
@@ -61,7 +80,6 @@ void Actuator_Motor_SetRightPwmPercent(double percent) {
         percent_postive = -percent;
         channel = Actuator_Motor_RIGHT_BACKWARD_CHANNEL;
     }
-    const uint32_t autoreload = __HAL_TIM_GET_AUTORELOAD(&Actuator_Motor_RIGHT_HTIM);
     const uint16_t compare = (uint16_t)((double)autoreload / 100.0 * percent_postive);
     __HAL_TIM_SET_COMPARE(&Actuator_Motor_RIGHT_HTIM, channel, compare);
 }
