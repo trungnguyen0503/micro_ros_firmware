@@ -1,5 +1,4 @@
 #include "project/actuator/motor.h"
-#include "project/utility.h"
 
 #include <math.h>
 
@@ -24,17 +23,9 @@ void Actuator_Motor_SetLeftPwmPercent(double percent) {
         return;
     }
     if (percent > 100.0) {
-        Utility_Log(
-            Utility_LogWarning,
-            "Requested PWM%% for left motor (%.2lf) is higher than 100", percent
-        );
         percent = 100.0;
     }
     if (percent < -100.0) {
-        Utility_Log(
-            Utility_LogWarning,
-            "Requested PWM%% for left motor (%.2lf) is lower than -100", percent
-        );
         percent = -100.0;
     }
     double abs_percent = percent;
@@ -61,17 +52,9 @@ void Actuator_Motor_SetRightPwmPercent(double percent) {
         return;
     }
     if (percent > 100.0) {
-        Utility_Log(
-            Utility_LogWarning,
-            "Requested PWM%% for right motor (%.2lf) is higher than 100", percent
-        );
         percent = 100.0;
     }
     if (percent < -100.0) {
-        Utility_Log(
-            Utility_LogWarning,
-            "Requested PWM%% for right motor (%.2lf) is lower than -100", percent
-        );
         percent = -100.0;
     }
     double abs_percent = percent;
@@ -88,19 +71,9 @@ double Actuator_Motor_LeftAngularVelToPwmPercent(const double w) {
     const double rpm = w * 60.0 / 2.0 / M_PI;
     double abs_rpm = fabs(rpm);
     if (abs_rpm < Actuator_Motor_MIN_RPM) {
-        Utility_Log(
-            Utility_LogWarning,
-            "RPM requested for left motor (%.2lf) is lower than min RPM (%.2lf)",
-            abs_rpm, Actuator_Motor_MIN_RPM
-        );
         return 0.0;
     }
     if (abs_rpm > Actuator_Motor_MAX_RPM) {
-        Utility_Log(
-            Utility_LogWarning,
-            "RPM requested for left motor (%.2lf) is higher than max RPM (%.2lf)",
-            abs_rpm, Actuator_Motor_MAX_RPM
-        );
         abs_rpm = Actuator_Motor_MAX_RPM;
     }
     if (rpm >= 0) {
@@ -113,19 +86,9 @@ double Actuator_Motor_RightAngularVelToPwmPercent(const double w) {
     const double rpm = w * 60.0 / 2.0 / M_PI;
     double abs_rpm = fabs(rpm);
     if (abs_rpm < Actuator_Motor_MIN_RPM) {
-        Utility_Log(
-            Utility_LogWarning,
-            "RPM requested for right motor (%.2lf) is lower than min RPM (%.2lf)",
-            abs_rpm, Actuator_Motor_MIN_RPM
-        );
         return 0.0;
     }
     if (abs_rpm > Actuator_Motor_MAX_RPM) {
-        Utility_Log(
-            Utility_LogWarning,
-            "RPM requested for right motor (%.2lf) is higher than max RPM (%.2lf)",
-            abs_rpm, Actuator_Motor_MAX_RPM
-        );
         abs_rpm = Actuator_Motor_MAX_RPM;
     }
     if (rpm >= 0) {
@@ -136,12 +99,10 @@ double Actuator_Motor_RightAngularVelToPwmPercent(const double w) {
 
 void Actuator_Motor_SetLeftAngularVel(const double w) {
     const double pwm_percent = Actuator_Motor_LeftAngularVelToPwmPercent(w);
-    Utility_Log(Utility_LogInfo, "pwm %.2lf", pwm_percent);
     Actuator_Motor_SetLeftPwmPercent(pwm_percent);
 }
 
 void Actuator_Motor_SetRightAngularVel(const double w) {
     const double pwm_percent = Actuator_Motor_RightAngularVelToPwmPercent(w);
-    Utility_Log(Utility_LogInfo, "pwm %.2lf", pwm_percent);
     Actuator_Motor_SetRightPwmPercent(pwm_percent);
 }
