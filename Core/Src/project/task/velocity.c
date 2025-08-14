@@ -9,6 +9,6 @@ void StartVelocityTask(void *arg) {
 
     while (1) {
         Ros_VelNode_PublishVel();
-        osDelay(40);
+        osDelay(35);
     }
 }
