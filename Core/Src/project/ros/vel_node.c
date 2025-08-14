@@ -35,10 +35,10 @@ void Ros_VelNode_Init() {
 void Ros_VelNode_PublishVel() {
     const double wl = Sensor_MotorEncoder_GetLeftAngularVel();
     const double wr = Sensor_MotorEncoder_GetRightAngularVel();
-    const double vl = Kinematics_AngularVelToLinearVel(wl);
-    const double vr = Kinematics_AngularVelToLinearVel(wr);
+    const double vl = Kine_AngularVelToLinearVel(wl);
+    const double vr = Kine_AngularVelToLinearVel(wr);
     const double linear = (vl + vr) / 2;
-    const double angular = (vr - vl) / Kinematics_WHEEL_BASE;
+    const double angular = (vr - vl) / Kine_WHEEL_BASE;
 
     const geometry_msgs__msg__TwistStamped msg = {
         .header.stamp = Utility_GetRosTimeStamp(),
