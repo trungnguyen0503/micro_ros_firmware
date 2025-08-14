@@ -10,14 +10,25 @@
 #include "rclc/executor.h"
 #include "rclc/rclc.h"
 
-typedef struct PID {
+#include <math.h>
+
+typedef struct WheelPidCommon {
+    double max_output;
+    double deadzone;
+    double integral_max;
+    double hyst;
+} WheelPidCommon_t;
+
+typedef struct WheelPid {
     double kp;
     double ki;
     double kd;
+    double kff;
     double setpoint;
-    double prev_error;
+    double prev_measure;
     double integral;
-} PID;
+    double prev_output;
+} WheelPid_t;
 
 #define NODE_NAME "diff_drive_node"
 #define CMD_VEL_TOPIC "cmd_vel"
@@ -39,19 +50,23 @@ static geometry_msgs__msg__TwistStamped g_vel_encoder_msg = {
 
 static int64_t g_last_vel_encoder_stamp_ns = 0;
 
-static PID g_linear_vel_pid = {
-    .kp = 0,
-    .ki = 0,
+static WheelPidCommon_t g_wheel_pid = { 0 };
+
+static WheelPid_t g_left_wheel_pid = {
+    .kp = 500,
+    .ki = 4000,
     .kd = 0,
+    .kff = 500,
 };
 
-static PID g_angular_vel_pid = {
-    .kp = 0,
-    .ki = 0,
+static WheelPid_t g_right_wheel_pid = {
+    .kp = 500,
+    .ki = 4000,
     .kd = 0,
+    .kff = 500
 };
 
-static double PID_Compute(PID *pid, double observation, double dt);
+static double ComputeWheelPid(WheelPid_t *pid, double measure, double dt);
 static void CmdVelCallback(const void *void_msg);
 static void VelEncoderCallback(const void *void_msg);
 
@@ -76,6 +91,14 @@ void Ros_DiffDriveNode_Init() {
         &g_exec, &g_vel_encoder_sub,
         &g_vel_encoder_msg, VelEncoderCallback, ON_NEW_DATA
     );
+
+    g_wheel_pid.max_output = Kine_AngularVelToLinearVel(Actuator_Motor_MAX_ANGULAR_VEL) * 1.02;
+    g_wheel_pid.deadzone =
+        Kine_AngularVelToLinearVel(Actuator_Motor_MIN_ANGULAR_VEL) +
+        g_wheel_pid.max_output * 0.09;
+    g_wheel_pid.integral_max = g_wheel_pid.max_output * 0.5;
+    g_wheel_pid.hyst = g_wheel_pid.deadzone * 0.3;
+    g_wheel_pid.integral_max = g_wheel_pid.max_output * 0.125;
 }
 
 void Ros_DiffDriveNode_SpinExec(const uint32_t timeout_ns) {
@@ -85,19 +108,58 @@ void Ros_DiffDriveNode_SpinExec(const uint32_t timeout_ns) {
     }
 }
 
-static double PID_Compute(PID *const pid, const double observation, const double dt) {
-    const double error = pid->setpoint - observation;
-    pid->integral += error * dt;
-    const double derivative = dt > 0 ? (error - pid->prev_error) / dt : 0;
-    pid->prev_error = error;
-    return (pid->kp * error) + (pid->ki * pid->integral) + (pid->kd * derivative);
+static double ComputeWheelPid(WheelPid_t *const pid, const double measure, const double dt) {
+    double result = 0;
+
+    const double abs_sp = fabs(pid->setpoint);
+    const double err = pid->setpoint - measure;
+    const double abs_err = fabs(err);
+    if (
+        pid->setpoint == 0 ||
+        (abs_sp <= g_wheel_pid.deadzone && abs_err <= g_wheel_pid.deadzone)
+    ) {
+        pid->integral = 0;
+        goto Return;
+    }
+
+    pid->integral += err * dt;
+    if (pid->integral > g_wheel_pid.integral_max) {
+        pid->integral = g_wheel_pid.integral_max;
+    } else if (pid->integral < -g_wheel_pid.integral_max) {
+        pid->integral = -g_wheel_pid.integral_max;
+    }
+
+    const double derivative = dt > 0 ? (measure - pid->prev_measure) / dt : 0;
+    const double ff = pid->kff / 1000 * pid->setpoint;
+    result =
+        ff + (pid->kp / 1000 * err) +
+        (pid->ki / 1000 * pid->integral) -
+        (pid->kd / 1000 * derivative);
+    if (fabs(result) < g_wheel_pid.deadzone) {
+        if (fabs(pid->prev_output) < g_wheel_pid.deadzone) {
+            result = 0;
+        } else if (abs_err < g_wheel_pid.deadzone + g_wheel_pid.hyst) {
+            result = g_wheel_pid.deadzone * (pid->prev_output > 0 ? 1 : -1);
+        }
+    } else if (result > g_wheel_pid.max_output) {
+        result = g_wheel_pid.max_output;
+    } else if (result < -g_wheel_pid.max_output) {
+        result = -g_wheel_pid.max_output;
+    }
+Return:
+    pid->prev_measure = measure;
+    pid->prev_output = result;
+    return result;
 }
 
 static void CmdVelCallback(const void *const void_msg) {
-    Utility_Log(Utility_LogInfo, "%s received", CMD_VEL_TOPIC);
     const geometry_msgs__msg__Twist *msg = void_msg;
-    g_linear_vel_pid.setpoint = msg->linear.x;
-    g_angular_vel_pid.setpoint = msg->angular.z;
+    const double lv = msg->linear.x;
+    const double av = msg->angular.z;
+    const double v_left = lv - (av * Kine_WHEEL_BASE / 2);
+    const double v_right = lv + (av * Kine_WHEEL_BASE / 2);
+    g_left_wheel_pid.setpoint = v_left;
+    g_right_wheel_pid.setpoint = v_right;
 }
 
 static void VelEncoderCallback(const void *const void_msg) {
@@ -106,12 +168,12 @@ static void VelEncoderCallback(const void *const void_msg) {
     const double av = msg->twist.angular.z;
     const int64_t stamp_ns = Utility_RosTimeToNs(msg->header.stamp);
     const double dt = (double)(stamp_ns - g_last_vel_encoder_stamp_ns) / 1000000000;
-    const double lv_pid = PID_Compute(&g_linear_vel_pid, lv, dt);
-    const double av_pid = PID_Compute(&g_angular_vel_pid, av, dt);
-    const double v_left = lv_pid - (av_pid * Kinematics_WHEEL_BASE / 2);
-    const double v_right = lv_pid + (av_pid * Kinematics_WHEEL_BASE / 2);
-    const double w_left = Kinematics_LinearVelToAngularVel(v_left);
-    const double w_right = Kinematics_LinearVelToAngularVel(v_right);
+    const double v_left = lv - (av * Kine_WHEEL_BASE / 2);
+    const double v_right = lv + (av * Kine_WHEEL_BASE / 2);
+    const double v_left_pid = ComputeWheelPid(&g_left_wheel_pid, v_left, dt);
+    const double v_right_pid = ComputeWheelPid(&g_right_wheel_pid, v_right, dt);
+    const double w_left = Kine_LinearVelToAngularVel(v_left_pid);
+    const double w_right = Kine_LinearVelToAngularVel(v_right_pid);
     Actuator_Motor_SetLeftAngularVel(w_left);
     Actuator_Motor_SetRightAngularVel(w_right);
     g_last_vel_encoder_stamp_ns = stamp_ns;
