@@ -8,6 +8,8 @@
 
 #define LOG_BUF_SIZE 1024
 
+#define LOG_UART huart1
+
 static uint8_t g_log_buffer[LOG_BUF_SIZE] = { 0 };
 
 void Utility_Printf(const char *const fmt, ...) {
@@ -15,7 +17,7 @@ void Utility_Printf(const char *const fmt, ...) {
     va_start(va, fmt);
     const int len = vsnprintf((char *)g_log_buffer, LOG_BUF_SIZE, fmt, va);
     if (len > 0) {
-        HAL_UART_Transmit(&huart4, g_log_buffer, (uint16_t)len, 100);
+        HAL_UART_Transmit(&LOG_UART, g_log_buffer, (uint16_t)len, 100);
     }
     va_end(va);
 }
@@ -51,7 +53,7 @@ void Utility_Log(enum Utility_LogLevel level, const char *fmt, ...) {
     if (body_len >= 0) {
         int total_len = header_len + body_len;
         g_log_buffer[total_len++] = '\n';
-        HAL_UART_Transmit(&huart4, g_log_buffer, (uint16_t)total_len, 100);
+        HAL_UART_Transmit(&LOG_UART, g_log_buffer, (uint16_t)total_len, 100);
     }
     va_end(va);
 }

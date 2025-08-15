@@ -15,7 +15,7 @@ void Ros_Init() {
     {
         const rmw_ret_t ret = rmw_uros_set_custom_transport(
             true,
-            &huart1,
+            &huart4,
             Uros_UartDmaTransport_Open,
             Uros_UartDmaTransport_Close,
             Uros_UartDmaTransport_Write,
