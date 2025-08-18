@@ -94,7 +94,7 @@ void Ros_OdometryNode_Init() {
 }
 
 void Ros_OdometryNode_RecordInitialHeading() {
-    const geometry_msgs__msg__Vector3 mag = Sensor_Imu_GetMag();
+    const __auto_type mag = Sensor_Imu_GetMag();
     g_initial_heading = atan2(mag.y, mag.x);
 }
 
@@ -142,7 +142,11 @@ static void PublishOdoData() {
         const double mag_yaw = atan2(mag_y, mag_x) - g_initial_heading;
         const double gyro_delta_yaw = imu->angular_velocity.z * dt;
         g_odo_yaw = (g_odo_yaw + gyro_delta_yaw) * gyro_weight + mag_yaw * (1 - gyro_weight);
+        Utility_Log(Utility_LogInfo, "mag yaw: %.2f", mag_yaw);
+        Utility_Log(Utility_LogInfo, "gyro yaw delta: %.2f", gyro_delta_yaw);
     }
+
+    g_odo_prev_stamp_ns = stamp_avg_ns;
 
     const nav_msgs__msg__Odometry msg = {
         .header.stamp = Utility_NsToRosTime(stamp_avg_ns),
