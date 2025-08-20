@@ -56,14 +56,14 @@ static WheelPid_t g_left_wheel_pid = {
     .kp = 500,
     .ki = 4000,
     .kd = 0,
-    .kff = 500,
+    .kff = 300,
 };
 
 static WheelPid_t g_right_wheel_pid = {
     .kp = 500,
     .ki = 4000,
     .kd = 0,
-    .kff = 500
+    .kff = 300
 };
 
 static double ComputeWheelPid(WheelPid_t *pid, double measure, double dt);
