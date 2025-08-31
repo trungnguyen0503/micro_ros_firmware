@@ -9,6 +9,6 @@ void StartBatteryTask(void *argument) {
 
     while (1) {
         Ros_BatteryNode_PublishBatteryData();
-        osDelay(10000);
+        osDelay(5000);
     }
 }

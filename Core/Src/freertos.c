@@ -71,7 +71,7 @@ osThreadId_t BatteryTaskHandle;
 const osThreadAttr_t BatteryTask_attributes = {
   .name = "BatteryTask",
   .stack_size = 512 * 4,
-  .priority = (osPriority_t) osPriorityLow,
+  .priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for TimeSyncTask */
 osThreadId_t TimeSyncTaskHandle;
@@ -101,6 +101,13 @@ const osThreadAttr_t VelocityTask_attributes = {
   .stack_size = 512 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
+/* Definitions for BatteryLedTask */
+osThreadId_t BatteryLedTaskHandle;
+const osThreadAttr_t BatteryLedTask_attributes = {
+  .name = "BatteryLedTask",
+  .stack_size = 256 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -114,6 +121,7 @@ void StartTimeSyncTask(void *argument);
 void StartOdometryTask(void *argument);
 void StartDiffDriveTask(void *argument);
 void StartVelocityTask(void *argument);
+void StartBatteryLedTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -183,6 +191,9 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of VelocityTask */
   VelocityTaskHandle = osThreadNew(StartVelocityTask, NULL, &VelocityTask_attributes);
+
+  /* creation of BatteryLedTask */
+  BatteryLedTaskHandle = osThreadNew(StartBatteryLedTask, NULL, &BatteryLedTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -304,6 +315,20 @@ __weak void StartVelocityTask(void *argument)
   /* USER CODE BEGIN StartVelocityTask */
   UNUSED(argument);
   /* USER CODE END StartVelocityTask */
+}
+
+/* USER CODE BEGIN Header_StartBatteryLedTask */
+/**
+* @brief Function implementing the BatteryLedTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartBatteryLedTask */
+__weak void StartBatteryLedTask(void *argument)
+{
+  /* USER CODE BEGIN StartBatteryLedTask */
+  UNUSED(argument);
+  /* USER CODE END StartBatteryLedTask */
 }
 
 /* Private application code --------------------------------------------------*/

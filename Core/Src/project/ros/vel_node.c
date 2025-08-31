@@ -1,4 +1,5 @@
 #include "project/ros/vel_node.h"
+#include "project/actuator/motor.h"
 #include "project/kinematics.h"
 #include "project/ros/global.h"
 #include "project/ros/imu_node.h"
@@ -23,6 +24,8 @@ enum {
 static rcl_node_t g_node = { 0 };
 static rcl_publisher_t g_vel_data_pub = { 0 };
 
+static double g_v_max = 0;
+
 void Ros_VelNode_Init() {
     rclc_node_init_default(&g_node, NODE_NAME, "", Ros_GetSupportStruct());
     rclc_publisher_init_best_effort(
@@ -30,13 +33,21 @@ void Ros_VelNode_Init() {
         ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, TwistStamped),
         Ros_VelNode_VEL_DATA_TOPIC
     );
+
+    g_v_max = Kine_AngularVelToLinearVel(Actuator_Motor_MAX_ANGULAR_VEL);
 }
 
 void Ros_VelNode_PublishVel() {
     const double wl = Sensor_MotorEncoder_GetLeftAngularVel();
     const double wr = Sensor_MotorEncoder_GetRightAngularVel();
-    const double vl = Kine_AngularVelToLinearVel(wl);
-    const double vr = Kine_AngularVelToLinearVel(wr);
+    double vl = Kine_AngularVelToLinearVel(wl);
+    if (fabs(vl) > g_v_max) {
+        vl = 0;
+    }
+    double vr = Kine_AngularVelToLinearVel(wr);
+    if (fabs(vr) > g_v_max) {
+        vr = 0;
+    }
     const double linear = (vl + vr) / 2;
     const double angular = (vr - vl) / Kine_WHEEL_BASE;
 
