@@ -48,4 +48,4 @@ ros2 topic list
 Below is a screenshot of the firmware running on the STM32F446RET6 board, if the log doesnt look like this, press RESET button to re-establish the session.
 
 ![Firmware Screenshot](image/done.png)
-![RQT_graph](image/ROS2_data.png)
+![RQT_graph](image/ROS2_data.jpg)
