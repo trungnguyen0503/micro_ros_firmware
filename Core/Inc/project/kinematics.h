@@ -5,7 +5,7 @@
 #define Kine_WHEEL_BASE 17.5E-2
 
 // Wheel radius (meter)
-#define Kine_WHEEL_RADIUS 32.5E-3
+#define Kine_WHEEL_RADIUS 34E-3
 
 // Converts angular velocity (rad/s) to linear velocity (m/s)
 static inline double Kine_AngularVelToLinearVel(double w);

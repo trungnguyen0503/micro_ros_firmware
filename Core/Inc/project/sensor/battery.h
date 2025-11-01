@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #define Sensor_Battery_MAX_VOLTAGE 12.6
+#define Sensor_Battery_MIN_ALLOW_VOLTAGE 9.0
 
 double Sensor_Battery_GetVoltage(uint32_t timeout_ms);
 double Sensor_Battery_GetPrevVoltage();

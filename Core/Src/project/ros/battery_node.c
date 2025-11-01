@@ -34,7 +34,7 @@ void Ros_BatteryNode_PublishBatteryData() {
     const sensor_msgs__msg__BatteryState msg = {
         .header.stamp = Utility_GetRosTimeStamp(),
         .voltage = (float)voltage,
-        .percentage = (float)(voltage / Sensor_Battery_MAX_VOLTAGE * 100.0),
+        .percentage = (float)((voltage - Sensor_Battery_MIN_ALLOW_VOLTAGE) / (Sensor_Battery_MAX_VOLTAGE - Sensor_Battery_MIN_ALLOW_VOLTAGE)) * 100.0f,
         .present = true,
         .power_supply_status = sensor_msgs__msg__BatteryState__POWER_SUPPLY_STATUS_DISCHARGING,
     };
