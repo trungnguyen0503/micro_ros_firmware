@@ -5,7 +5,7 @@
 #include "rclc/rclc.h"
 #include "rmw_microros/rmw_microros.h"
 
-#include "usart.h"
+//#include "usart.h"
 
 static rcl_allocator_t Ros_allocator = { 0 };
 static rclc_support_t Ros_support = { 0 };
@@ -14,12 +14,12 @@ void Ros_Init() {
     // Set UART DMA transport
     {
         const rmw_ret_t ret = rmw_uros_set_custom_transport(
-            true,
-            &huart1,
-            Uros_UartDmaTransport_Open,
-            Uros_UartDmaTransport_Close,
-            Uros_UartDmaTransport_Write,
-            Uros_UartDmaTransport_Read
+        true,
+        NULL,  // no user data needed
+        cubemx_transport_open,
+        cubemx_transport_close,
+        cubemx_transport_write,
+        cubemx_transport_read
         );
         if (ret != RMW_RET_OK) {
             Utility_Log(Utility_LogFatal, "Failed to initialize ros transport");

@@ -24,6 +24,7 @@
 #include "i2c.h"
 #include "tim.h"
 #include "usart.h"
+#include "usb_device.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -102,6 +103,7 @@ int main(void)
   MX_TIM9_Init();
   MX_UART4_Init();
   /* USER CODE BEGIN 2 */
+  MX_USB_DEVICE_Init();
   /* USER CODE END 2 */
 
   /* Init scheduler */
