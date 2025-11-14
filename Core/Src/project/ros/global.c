@@ -11,15 +11,20 @@ static rcl_allocator_t Ros_allocator = { 0 };
 static rclc_support_t Ros_support = { 0 };
 
 void Ros_Init() {
-    // Set UART DMA transport
+    // Set transport
     {
         const rmw_ret_t ret = rmw_uros_set_custom_transport(
             true,
-            &huart1,
-            Uros_UartDmaTransport_Open,
-            Uros_UartDmaTransport_Close,
-            Uros_UartDmaTransport_Write,
-            Uros_UartDmaTransport_Read
+            // &huart1,
+            // Uros_UartDmaTransport_Open,
+            // Uros_UartDmaTransport_Close,
+            // Uros_UartDmaTransport_Write,
+            // Uros_UartDmaTransport_Read
+            NULL,
+            Uros_UsbCdcTransport_Open,
+            Uros_UsbCdcTransport_Close,
+            Uros_UsbCdcTransport_Write,
+            Uros_UsbCdcTransport_Read
         );
         if (ret != RMW_RET_OK) {
             Utility_Log(Utility_LogFatal, "Failed to initialize ros transport");

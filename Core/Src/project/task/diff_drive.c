@@ -11,6 +11,6 @@ void StartDiffDriveTask(void *arg) {
     Task_Init_WaitUntilDone();
 
     while (1) {
-        Ros_DiffDriveNode_SpinExec(RCL_MS_TO_NS(10));
+        Ros_DiffDriveNode_SpinExec(RCL_MS_TO_NS(25));
     }
 }

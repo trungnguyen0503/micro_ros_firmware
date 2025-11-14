@@ -46,25 +46,23 @@ void StartInitTask(void *arg) {
 
     Utility_Log(Utility_LogInfo, "Initializing ros nodes");
     Ros_ImuNode_Init();
-    Ros_OdometryNode_Init();
     Ros_BatteryNode_Init();
     Ros_VelNode_Init();
     Ros_DiffDriveNode_Init();
 
-    Utility_Log(Utility_LogInfo, "Rotating robot to calibrate magnetometer");
-    {
-        const double av = Actuator_Motor_MAX_ANGULAR_VEL / 3;
-        Actuator_Motor_SetLeftAngularVel(-av);
-        Actuator_Motor_SetRightAngularVel(av);
-        for (int i = 0; i < 600; i++) {
-            Sensor_Imu_GetMag();
-            osDelay(20);
-        }
-        Actuator_Motor_SetLeftAngularVel(0);
-        Actuator_Motor_SetRightAngularVel(0);
-        osDelay(500);
-        Ros_OdometryNode_RecordInitialHeading();
-    }
+    // Utility_Log(Utility_LogInfo, "Rotating robot to calibrate magnetometer");
+    // {
+    //     const double av = Actuator_Motor_MAX_ANGULAR_VEL / 3;
+    //     Actuator_Motor_SetLeftAngularVel(-av);
+    //     Actuator_Motor_SetRightAngularVel(av);
+    //     for (int i = 0; i < 600; i++) {
+    //         Sensor_Imu_GetMag();
+    //         osDelay(20);
+    //     }
+    //     Actuator_Motor_SetLeftAngularVel(0);
+    //     Actuator_Motor_SetRightAngularVel(0);
+    //     osDelay(500);
+    // }
 
     const uint32_t stack_left = uxTaskGetStackHighWaterMark(InitTaskHandle);
     const uint32_t end_init_ms = osKernelGetTickCount();

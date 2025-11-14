@@ -80,13 +80,6 @@ const osThreadAttr_t TimeSyncTask_attributes = {
   .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityHigh,
 };
-/* Definitions for OdometryTask */
-osThreadId_t OdometryTaskHandle;
-const osThreadAttr_t OdometryTask_attributes = {
-  .name = "OdometryTask",
-  .stack_size = 1024 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
-};
 /* Definitions for DiffDriveTask */
 osThreadId_t DiffDriveTaskHandle;
 const osThreadAttr_t DiffDriveTask_attributes = {
@@ -118,11 +111,11 @@ void StartDebugTask(void *argument);
 void StartIMUTask(void *argument);
 void StartBatteryTask(void *argument);
 void StartTimeSyncTask(void *argument);
-void StartOdometryTask(void *argument);
 void StartDiffDriveTask(void *argument);
 void StartVelocityTask(void *argument);
 void StartBatteryLedTask(void *argument);
 
+extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /* Hook prototypes */
@@ -183,9 +176,6 @@ void MX_FREERTOS_Init(void) {
   /* creation of TimeSyncTask */
   TimeSyncTaskHandle = osThreadNew(StartTimeSyncTask, NULL, &TimeSyncTask_attributes);
 
-  /* creation of OdometryTask */
-  OdometryTaskHandle = osThreadNew(StartOdometryTask, NULL, &OdometryTask_attributes);
-
   /* creation of DiffDriveTask */
   DiffDriveTaskHandle = osThreadNew(StartDiffDriveTask, NULL, &DiffDriveTask_attributes);
 
@@ -214,6 +204,8 @@ void MX_FREERTOS_Init(void) {
 /* USER CODE END Header_StartInitTask */
 __weak void StartInitTask(void *argument)
 {
+  /* init code for USB_DEVICE */
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN StartInitTask */
   UNUSED(argument);
   /* USER CODE END StartInitTask */
@@ -273,20 +265,6 @@ __weak void StartTimeSyncTask(void *argument)
   /* USER CODE BEGIN StartTimeSyncTask */
   UNUSED(argument);
   /* USER CODE END StartTimeSyncTask */
-}
-
-/* USER CODE BEGIN Header_StartOdometryTask */
-/**
-* @brief Function implementing the OdometryTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_StartOdometryTask */
-__weak void StartOdometryTask(void *argument)
-{
-  /* USER CODE BEGIN StartOdometryTask */
-  UNUSED(argument);
-  /* USER CODE END StartOdometryTask */
 }
 
 /* USER CODE BEGIN Header_StartDiffDriveTask */

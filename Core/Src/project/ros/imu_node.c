@@ -47,15 +47,16 @@ void Ros_ImuNode_PublishImuData() {
 
 void Ros_ImuNode_PublishMagData() {
     const sensor_msgs__msg__MagneticField msg = {
-        .header.frame_id = Utility_MakeStaticRosCString("base_link"),
-        .header.stamp = Utility_GetRosTimeStamp(),
+        // .header.frame_id = Utility_MakeStaticRosCString("base_link"),
+        // .header.stamp = Utility_GetRosTimeStamp(),
         .magnetic_field = Sensor_Imu_GetMag(),
-        .magnetic_field_covariance[0] = -1,
+        // .magnetic_field_covariance[0] = -1,
     };
-    const rcl_ret_t ret = rcl_publish(&g_mag_data_pub, &msg, NULL);
-    if (ret != RCL_RET_OK) {
-        Utility_Log(
-            Utility_LogWarning, "/magnetic_field/data publish failed (code %d)", ret
-        );
-    }
+    (void)msg;
+    // const rcl_ret_t ret = rcl_publish(&g_mag_data_pub, &msg, NULL);
+    // if (ret != RCL_RET_OK) {
+    //     Utility_Log(
+    //         Utility_LogWarning, "/magnetic_field/data publish failed (code %d)", ret
+    //     );
+    // }
 }
