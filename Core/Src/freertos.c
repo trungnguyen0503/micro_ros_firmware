@@ -25,9 +25,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "adc.h"
-#include "usart.h"
-
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -52,8 +49,8 @@
 osThreadId_t InitTaskHandle;
 const osThreadAttr_t InitTask_attributes = {
   .name = "InitTask",
-  .stack_size = 1000 * 4,
-  .priority = (osPriority_t) osPriorityHigh,
+  .stack_size = 1024 * 4,
+  .priority = (osPriority_t) osPriorityRealtime7,
 };
 /* Definitions for DebugTask */
 osThreadId_t DebugTaskHandle;
@@ -66,21 +63,42 @@ const osThreadAttr_t DebugTask_attributes = {
 osThreadId_t IMUTaskHandle;
 const osThreadAttr_t IMUTask_attributes = {
   .name = "IMUTask",
-  .stack_size = 1000 * 4,
+  .stack_size = 512 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for BatteryTask */
 osThreadId_t BatteryTaskHandle;
 const osThreadAttr_t BatteryTask_attributes = {
   .name = "BatteryTask",
-  .stack_size = 1000 * 4,
-  .priority = (osPriority_t) osPriorityLow,
+  .stack_size = 512 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
 };
-/* Definitions for SubscribeTask */
-osThreadId_t SubscribeTaskHandle;
-const osThreadAttr_t SubscribeTask_attributes = {
-  .name = "SubscribeTask",
-  .stack_size = 1000 * 4,
+/* Definitions for TimeSyncTask */
+osThreadId_t TimeSyncTaskHandle;
+const osThreadAttr_t TimeSyncTask_attributes = {
+  .name = "TimeSyncTask",
+  .stack_size = 256 * 4,
+  .priority = (osPriority_t) osPriorityHigh,
+};
+/* Definitions for DiffDriveTask */
+osThreadId_t DiffDriveTaskHandle;
+const osThreadAttr_t DiffDriveTask_attributes = {
+  .name = "DiffDriveTask",
+  .stack_size = 512 * 4,
+  .priority = (osPriority_t) osPriorityHigh,
+};
+/* Definitions for VelocityTask */
+osThreadId_t VelocityTaskHandle;
+const osThreadAttr_t VelocityTask_attributes = {
+  .name = "VelocityTask",
+  .stack_size = 512 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
+};
+/* Definitions for BatteryLedTask */
+osThreadId_t BatteryLedTaskHandle;
+const osThreadAttr_t BatteryLedTask_attributes = {
+  .name = "BatteryLedTask",
+  .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
 
@@ -92,8 +110,12 @@ void StartInitTask(void *argument);
 void StartDebugTask(void *argument);
 void StartIMUTask(void *argument);
 void StartBatteryTask(void *argument);
-void StartSubscribeTask(void *argument);
+void StartTimeSyncTask(void *argument);
+void StartDiffDriveTask(void *argument);
+void StartVelocityTask(void *argument);
+void StartBatteryLedTask(void *argument);
 
+extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /* Hook prototypes */
@@ -151,8 +173,17 @@ void MX_FREERTOS_Init(void) {
   /* creation of BatteryTask */
   BatteryTaskHandle = osThreadNew(StartBatteryTask, NULL, &BatteryTask_attributes);
 
-  /* creation of SubscribeTask */
-  SubscribeTaskHandle = osThreadNew(StartSubscribeTask, NULL, &SubscribeTask_attributes);
+  /* creation of TimeSyncTask */
+  TimeSyncTaskHandle = osThreadNew(StartTimeSyncTask, NULL, &TimeSyncTask_attributes);
+
+  /* creation of DiffDriveTask */
+  DiffDriveTaskHandle = osThreadNew(StartDiffDriveTask, NULL, &DiffDriveTask_attributes);
+
+  /* creation of VelocityTask */
+  VelocityTaskHandle = osThreadNew(StartVelocityTask, NULL, &VelocityTask_attributes);
+
+  /* creation of BatteryLedTask */
+  BatteryLedTaskHandle = osThreadNew(StartBatteryLedTask, NULL, &BatteryLedTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -173,6 +204,8 @@ void MX_FREERTOS_Init(void) {
 /* USER CODE END Header_StartInitTask */
 __weak void StartInitTask(void *argument)
 {
+  /* init code for USB_DEVICE */
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN StartInitTask */
   UNUSED(argument);
   /* USER CODE END StartInitTask */
@@ -220,18 +253,60 @@ __weak void StartBatteryTask(void *argument)
   /* USER CODE END StartBatteryTask */
 }
 
-/* USER CODE BEGIN Header_StartSubscribeTask */
+/* USER CODE BEGIN Header_StartTimeSyncTask */
 /**
- * @brief Function implementing the SubscribeTask thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartSubscribeTask */
-__weak void StartSubscribeTask(void *argument)
+* @brief Function implementing the TimeSyncTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartTimeSyncTask */
+__weak void StartTimeSyncTask(void *argument)
 {
-  /* USER CODE BEGIN StartSubscribeTask */
+  /* USER CODE BEGIN StartTimeSyncTask */
   UNUSED(argument);
-  /* USER CODE END StartSubscribeTask */
+  /* USER CODE END StartTimeSyncTask */
+}
+
+/* USER CODE BEGIN Header_StartDiffDriveTask */
+/**
+* @brief Function implementing the DiffDriveTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartDiffDriveTask */
+__weak void StartDiffDriveTask(void *argument)
+{
+  /* USER CODE BEGIN StartDiffDriveTask */
+  UNUSED(argument);
+  /* USER CODE END StartDiffDriveTask */
+}
+
+/* USER CODE BEGIN Header_StartVelocityTask */
+/**
+* @brief Function implementing the Velocity thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartVelocityTask */
+__weak void StartVelocityTask(void *argument)
+{
+  /* USER CODE BEGIN StartVelocityTask */
+  UNUSED(argument);
+  /* USER CODE END StartVelocityTask */
+}
+
+/* USER CODE BEGIN Header_StartBatteryLedTask */
+/**
+* @brief Function implementing the BatteryLedTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartBatteryLedTask */
+__weak void StartBatteryLedTask(void *argument)
+{
+  /* USER CODE BEGIN StartBatteryLedTask */
+  UNUSED(argument);
+  /* USER CODE END StartBatteryLedTask */
 }
 
 /* Private application code --------------------------------------------------*/

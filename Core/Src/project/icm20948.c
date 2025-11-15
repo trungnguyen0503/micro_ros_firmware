@@ -1,21 +1,21 @@
-#include "project/sensor/icm20948.h"
+#include "project/icm20948.h"
 #include "stm32f4xx_hal_def.h"
 
 #define NUMBER_ONBOARD_SENSOR_REGISTERS 12     // accel and gyro each have 2 registers for 3 dof
 #define NUMBER_ONBOARD_SENSOR_REGISTERS_HALF 6 // accel or gyro each have 2 registers for 3 dof
 
-static uint16_t g_addr;
-static I2C_HandleTypeDef *g_hi2c;
-static ICM20948_user_bank g_current_user_bank;
+static uint16_t ICM20948_addr;
+static I2C_HandleTypeDef *ICM20948_hi2c;
+static ICM20948_user_bank ICM20948_current_user_bank;
 
 static uint8_t AK09916_last_addr = 0;
 
 static uint16_t CombineRegisters(uint8_t high, uint8_t low) {
-    return (((uint16_t)high) << 8) | low;
+    return ((uint16_t)high << 8) | low;
 }
 
 static HAL_StatusTypeDef CheckUserRegister(const ICM20948_reg_R *regi) {
-    if (regi->bank != g_current_user_bank) {
+    if (regi->bank != ICM20948_current_user_bank) {
         return ICM20948_ChangeUserBank(regi->bank);
     }
     return HAL_OK;
@@ -24,11 +24,11 @@ static HAL_StatusTypeDef CheckUserRegister(const ICM20948_reg_R *regi) {
 HAL_StatusTypeDef ICM20948_Init(I2C_HandleTypeDef *hi2c, ICM20948_SDO_pinouts SDO_pinout) {
     HAL_Delay(ICM20948_STARTUP_DELAY);
 
-    g_hi2c = hi2c;
+    ICM20948_hi2c = hi2c;
     if (SDO_pinout == ICM20948_SDO_LOW) {
-        g_addr = ICM20948_ADDR_L;
+        ICM20948_addr = ICM20948_ADDR_L;
     } else {
-        g_addr = ICM20948_ADDR_H;
+        ICM20948_addr = ICM20948_ADDR_H;
     }
 
     HAL_StatusTypeDef status = HAL_ERROR;
@@ -38,7 +38,7 @@ HAL_StatusTypeDef ICM20948_Init(I2C_HandleTypeDef *hi2c, ICM20948_SDO_pinouts SD
     if (status != HAL_OK) {
         return status;
     }
-    g_current_user_bank = data;
+    ICM20948_current_user_bank = data;
 
     status = ICM20948_ReadRegister(&ICM20948_REG_WHO_AM_I, &data);
     if (status != HAL_OK) {
@@ -52,7 +52,7 @@ HAL_StatusTypeDef ICM20948_Init(I2C_HandleTypeDef *hi2c, ICM20948_SDO_pinouts SD
 
 HAL_StatusTypeDef ICM20948_ReadUserBank(uint8_t *data) {
     return HAL_I2C_Mem_Read(
-        g_hi2c, g_addr, ICM20948_REG_UBANK_SEL.address,
+        ICM20948_hi2c, ICM20948_addr, ICM20948_REG_UBANK_SEL.address,
         I2C_MEMADD_SIZE_8BIT, data, 1, ICM20948_MAXIMUM_TIMEOUT
     );
 }
@@ -66,11 +66,11 @@ HAL_StatusTypeDef ICM20948_ChangeUserBank(ICM20948_user_bank ubank) {
 
     uint8_t i_ubank = ((uint8_t)ubank) + (data & ICM20948_REG_UBANK_SEL_RESERVED_MASK);
     status = HAL_I2C_Mem_Write(
-        g_hi2c, g_addr, ICM20948_REG_UBANK_SEL.address, I2C_MEMADD_SIZE_8BIT,
+        ICM20948_hi2c, ICM20948_addr, ICM20948_REG_UBANK_SEL.address, I2C_MEMADD_SIZE_8BIT,
         &i_ubank, 1, ICM20948_MAXIMUM_TIMEOUT
     );
     if (status == HAL_OK) {
-        g_current_user_bank = ubank;
+        ICM20948_current_user_bank = ubank;
     }
     return status;
 }
@@ -85,7 +85,8 @@ HAL_StatusTypeDef ICM20948_ReadRegisters(const ICM20948_reg_R *regi, uint8_t *da
         return status;
     }
     return HAL_I2C_Mem_Read(
-        g_hi2c, g_addr, regi->address, I2C_MEMADD_SIZE_8BIT, data, size, ICM20948_MAXIMUM_TIMEOUT
+        ICM20948_hi2c, ICM20948_addr, regi->address,
+        I2C_MEMADD_SIZE_8BIT, data, size, ICM20948_MAXIMUM_TIMEOUT
     );
 }
 
@@ -107,7 +108,8 @@ HAL_StatusTypeDef ICM20948_WriteRegister(const ICM20948_Reg_RW *regi, uint8_t da
     }
 
     return HAL_I2C_Mem_Write(
-        g_hi2c, g_addr, regi->address, I2C_MEMADD_SIZE_8BIT, &data, 1, ICM20948_MAXIMUM_TIMEOUT
+        ICM20948_hi2c, ICM20948_addr, regi->address,
+        I2C_MEMADD_SIZE_8BIT, &data, 1, ICM20948_MAXIMUM_TIMEOUT
     );
 }
 
@@ -122,7 +124,8 @@ HAL_StatusTypeDef ICM20948_WriteRegisterEnables(const ICM20948_Reg_RW *regi, uin
     data |= data_read;
 
     return HAL_I2C_Mem_Write(
-        g_hi2c, g_addr, regi->address, I2C_MEMADD_SIZE_8BIT, &data, 1, ICM20948_MAXIMUM_TIMEOUT
+        ICM20948_hi2c, ICM20948_addr, regi->address,
+        I2C_MEMADD_SIZE_8BIT, &data, 1, ICM20948_MAXIMUM_TIMEOUT
     );
 }
 
@@ -145,7 +148,8 @@ HAL_StatusTypeDef ICM20948_WriteRegisterEnDisables(
     data_en |= data_dis;
 
     return HAL_I2C_Mem_Write(
-        g_hi2c, g_addr, regi->address, I2C_MEMADD_SIZE_8BIT, &data_en, 1, ICM20948_MAXIMUM_TIMEOUT
+        ICM20948_hi2c, ICM20948_addr, regi->address,
+        I2C_MEMADD_SIZE_8BIT, &data_en, 1, ICM20948_MAXIMUM_TIMEOUT
     );
 }
 
@@ -160,7 +164,8 @@ HAL_StatusTypeDef ICM20948_WriteRegisterDisables(const ICM20948_Reg_RW *regi, ui
     data &= data_read;
 
     return HAL_I2C_Mem_Write(
-        g_hi2c, g_addr, regi->address, I2C_MEMADD_SIZE_8BIT, &data, 1, ICM20948_MAXIMUM_TIMEOUT
+        ICM20948_hi2c, ICM20948_addr, regi->address,
+        I2C_MEMADD_SIZE_8BIT, &data, 1, ICM20948_MAXIMUM_TIMEOUT
     );
 }
 
@@ -209,7 +214,10 @@ HAL_StatusTypeDef ICM20948_ReadGyroRegisters(ICM20948_int16_vector3 *gyro) {
     return HAL_OK;
 }
 
-HAL_StatusTypeDef ICM20948_ReadAccelGryoRegisters(ICM20948_int16_vector3 *accel, ICM20948_int16_vector3 *gyro) {
+HAL_StatusTypeDef ICM20948_ReadAccelGryoRegisters(
+    ICM20948_int16_vector3 *accel,
+    ICM20948_int16_vector3 *gyro
+) {
     uint8_t data[NUMBER_ONBOARD_SENSOR_REGISTERS];
     HAL_StatusTypeDef status = ICM20948_ReadRegisters(
         &ICM20948_REG_ACCEL_XOUT_H, data, NUMBER_ONBOARD_SENSOR_REGISTERS

@@ -4,7 +4,9 @@
 #include "rcl/allocator.h"
 #include "rclc/types.h"
 
-extern rcl_allocator_t Ros_allocator;
-extern rclc_support_t Ros_support;
+// Initialize Uros' transporter, allocator and support struct; sync time with agent
+void Ros_Init();
+const rcl_allocator_t *Ros_GetAllocator();
+rclc_support_t *Ros_GetSupportStruct();
 
 #endif

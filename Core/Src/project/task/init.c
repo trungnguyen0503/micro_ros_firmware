@@ -1,114 +1,77 @@
 #include "project/actuator/motor.h"
 #include "project/ros/battery_node.h"
+#include "project/ros/diff_drive_node.h"
 #include "project/ros/global.h"
 #include "project/ros/imu_node.h"
+#include "project/ros/odometry_node.h"
+#include "project/ros/vel_node.h"
+#include "project/sensor/imu.h"
 #include "project/sensor/motor_encoder.h"
-#include "project/uros/utility.h"
-
-#include "rcl/rcl.h"
-#include "rclc/executor.h"
-#include "rclc/rclc.h"
-#include "rmw_microros/rmw_microros.h"
-#include "sensor_msgs/msg/battery_state.h"
-#include "sensor_msgs/msg/imu.h"
-#include "std_msgs/msg/int32.h"
+#include "project/utility.h"
 
 #include "cmsis_os2.h"
-#include "usart.h"
+#include "FreeRTOS.h"
+#include "task.h"
 
-static rcl_node_t g_test_node = { 0 };
-static rcl_subscription_t g_test_sub = { 0 };
-static rclc_executor_t g_executor = { 0 };
+#include <inttypes.h>
 
-static std_msgs__msg__Int32 DEBUG_int = { 0 };
+extern osThreadId_t InitTaskHandle;
 
-static uint32_t g_sub_callback_count = 0;
+static bool g_task_is_done = false;
 
-static void TestSubscriptionCallback(const void *void_msg);
+bool Task_Init_IsDone() {
+    return g_task_is_done;
+}
 
-void StartInitTask(void *argument) {
-    UNUSED(argument);
+void Task_Init_WaitUntilDone() {
+    while (!g_task_is_done) {
+        osDelay(100);
+    }
+}
 
+void StartInitTask(void *arg) {
+    (void)arg;
+
+    Utility_Log(Utility_LogInfo, "Initialize task started");
+
+    const uint32_t start_init_ms = osKernelGetTickCount();
+
+    Utility_Log(Utility_LogInfo, "Initializing actuators and sensors");
     Actuator_Motor_Init();
+    Sensor_Imu_Init();
     Sensor_MotorEncoder_Init();
 
-    // init uros transport
-    rmw_uros_set_custom_transport(
-        true,
-        &huart1,
-        Uros_UartDmaTransport_Open,
-        Uros_UartDmaTransport_Close,
-        Uros_UartDmaTransport_Write,
-        Uros_UartDmaTransport_Read
+    Utility_Log(Utility_LogInfo, "Initializing ros components");
+    Ros_Init();
+
+    Utility_Log(Utility_LogInfo, "Initializing ros nodes");
+    Ros_ImuNode_Init();
+    Ros_BatteryNode_Init();
+    Ros_VelNode_Init();
+    Ros_DiffDriveNode_Init();
+
+    // Utility_Log(Utility_LogInfo, "Rotating robot to calibrate magnetometer");
+    // {
+    //     const double av = Actuator_Motor_MAX_ANGULAR_VEL / 3;
+    //     Actuator_Motor_SetLeftAngularVel(-av);
+    //     Actuator_Motor_SetRightAngularVel(av);
+    //     for (int i = 0; i < 600; i++) {
+    //         Sensor_Imu_GetMag();
+    //         osDelay(20);
+    //     }
+    //     Actuator_Motor_SetLeftAngularVel(0);
+    //     Actuator_Motor_SetRightAngularVel(0);
+    //     osDelay(500);
+    // }
+
+    const uint32_t stack_left = uxTaskGetStackHighWaterMark(InitTaskHandle);
+    const uint32_t end_init_ms = osKernelGetTickCount();
+    const uint32_t init_time_ms = end_init_ms - start_init_ms;
+    Utility_Log(
+        Utility_LogInfo, "Initializing finished, took %" PRIu32 "ms. Memory left: %" PRIu32 "B",
+        init_time_ms, stack_left * 4
     );
 
-    // init uros allocator
-    Ros_allocator.allocate = Uros_Allocate;
-    Ros_allocator.deallocate = Uros_Deallocate;
-    Ros_allocator.reallocate = Uros_Reallocate;
-    Ros_allocator.zero_allocate = Uros_ZeroAllocate;
-    if (!rcutils_set_default_allocator(&Ros_allocator)) {
-        // TODO:
-    }
-
-    // set global allocator and support
-    rclc_support_init(&Ros_support, 0, NULL, &Ros_allocator);
-
-    // init imu node
-    rclc_node_init_default(&Ros_Imu_node, "imu_node", "", &Ros_support);
-    rclc_publisher_init_best_effort(
-        &Ros_Imu_data_pub,
-        &Ros_Imu_node,
-        ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, Imu),
-        "imu/data"
-    );
-
-    // init battery node
-    rclc_node_init_default(&Ros_Battery_node, "battery_node", "", &Ros_support);
-    rclc_publisher_init_best_effort(
-        &Ros_Battery_data_pub,
-        &Ros_Battery_node,
-        ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, BatteryState),
-        "battery/data"
-    );
-
-    // init test node
-    rclc_node_init_default(&g_test_node, "test_node", "", &Ros_support);
-    rclc_subscription_init_best_effort(
-        &g_test_sub,
-        &g_test_node,
-        ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32),
-        "pi_test"
-    );
-    rclc_executor_init(&g_executor, &Ros_support.context, 1, &Ros_allocator);
-    rclc_executor_add_subscription(
-        &g_executor, &g_test_sub, &DEBUG_int, TestSubscriptionCallback, ON_NEW_DATA
-    );
-
+    g_task_is_done = true;
     osThreadExit();
-}
-
-void StartSubscribeTask(void *argument) {
-    UNUSED(argument);
-
-    const uint32_t interval_ms = 100;
-    const uint32_t interval_ns = interval_ms * 1000;
-
-    while (1) {
-        rclc_executor_spin_some(&g_executor, interval_ns);
-        osDelay(interval_ms);
-    }
-}
-
-static void TestSubscriptionCallback(const void *const void_msg) {
-    UNUSED(void_msg);
-    g_sub_callback_count++;
-}
-
-rclc_support_t *Task_GetRclcSupport() {
-    return &Ros_support;
-}
-
-rcl_allocator_t *Task_GetRclAllocator() {
-    return &Ros_allocator;
 }

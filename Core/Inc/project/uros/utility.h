@@ -19,6 +19,22 @@ size_t Uros_UartDmaTransport_Read(
     uint8_t *err
 );
 
+bool Uros_UsbCdcTransport_Open(struct uxrCustomTransport *transport);
+bool Uros_UsbCdcTransport_Close(struct uxrCustomTransport *transport);
+size_t Uros_UsbCdcTransport_Write(
+    struct uxrCustomTransport *transport,
+    const uint8_t *buf,
+    size_t len,
+    uint8_t *err
+);
+size_t Uros_UsbCdcTransport_Read(
+    struct uxrCustomTransport *transport,
+    uint8_t *buf,
+    size_t len,
+    int timeout,
+    uint8_t *err
+);
+
 size_t Uros_GetFreeHeapSize(void);
 size_t Uros_GetMinFreeHeapSize(void);
 size_t Uros_GetBlockSize(void *pv);
