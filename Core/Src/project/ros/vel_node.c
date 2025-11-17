@@ -22,7 +22,7 @@ enum {
 static rcl_node_t g_node = { 0 };
 static rcl_publisher_t g_vel_data_pub = { 0 };
 
-#define V_MAX Kine_AngularVelToLinearVel(Actuator_Motor_MAX_ANGULAR_VEL)
+#define V_MAX Kine_AngularVelToLinearVel(Actuator_Motor_MAX_ANGULAR_VEL)*1.1
 
 void Ros_VelNode_Init() {
     rclc_node_init_default(&g_node, NODE_NAME, "", Ros_GetSupportStruct());

@@ -61,9 +61,9 @@ static WheelPid_t g_left_wheel_pid = {
 
 static WheelPid_t g_right_wheel_pid = {
     .kp = 500,
-    .ki = 2900,
+    .ki = 3100,
     .kd = 0,
-    .kff = 250
+    .kff = 300,
 };
 
 static double ComputeWheelPid(WheelPid_t *pid, double measure, double dt);
@@ -92,13 +92,14 @@ void Ros_DiffDriveNode_Init() {
         &g_vel_encoder_msg, VelEncoderCallback, ON_NEW_DATA
     );
 
-    g_wheel_pid.max_output = Kine_AngularVelToLinearVel(Actuator_Motor_MAX_ANGULAR_VEL) * 1.02;
+    g_wheel_pid.max_output = Kine_AngularVelToLinearVel(Actuator_Motor_MAX_ANGULAR_VEL) * 0.95;
     g_wheel_pid.deadzone =
         Kine_AngularVelToLinearVel(Actuator_Motor_MIN_ANGULAR_VEL) +
-        g_wheel_pid.max_output * 0.09;
-    g_wheel_pid.integral_max = g_wheel_pid.max_output * 0.5;
+        g_wheel_pid.max_output * 0.05;
+//    g_wheel_pid.integral_max = g_wheel_pid.max_output * 0.5;
     g_wheel_pid.hyst = g_wheel_pid.deadzone * 0.3;
-    g_wheel_pid.integral_max = g_wheel_pid.max_output * 0.125;
+    g_wheel_pid.integral_max = g_wheel_pid.max_output * 0.2;
+
 }
 
 void Ros_DiffDriveNode_SpinExec(const uint32_t timeout_ns) {
