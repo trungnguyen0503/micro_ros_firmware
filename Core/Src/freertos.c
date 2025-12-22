@@ -29,7 +29,6 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -101,6 +100,13 @@ const osThreadAttr_t BatteryLedTask_attributes = {
   .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
+/* Definitions for IWDGTask */
+osThreadId_t IWDGTaskHandle;
+const osThreadAttr_t IWDGTask_attributes = {
+  .name = "IWDGTask",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityRealtime7,
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -114,6 +120,7 @@ void StartTimeSyncTask(void *argument);
 void StartDiffDriveTask(void *argument);
 void StartVelocityTask(void *argument);
 void StartBatteryLedTask(void *argument);
+void StartIWDGTask(void *argument);
 
 extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -185,6 +192,9 @@ void MX_FREERTOS_Init(void) {
   /* creation of BatteryLedTask */
   BatteryLedTaskHandle = osThreadNew(StartBatteryLedTask, NULL, &BatteryLedTask_attributes);
 
+  /* creation of IWDGTask */
+  IWDGTaskHandle = osThreadNew(StartIWDGTask, NULL, &IWDGTask_attributes);
+
   /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
@@ -205,7 +215,7 @@ void MX_FREERTOS_Init(void) {
 __weak void StartInitTask(void *argument)
 {
   /* init code for USB_DEVICE */
-  MX_USB_DEVICE_Init();
+  //MX_USB_DEVICE_Init();
   /* USER CODE BEGIN StartInitTask */
   UNUSED(argument);
   /* USER CODE END StartInitTask */
@@ -307,6 +317,20 @@ __weak void StartBatteryLedTask(void *argument)
   /* USER CODE BEGIN StartBatteryLedTask */
   UNUSED(argument);
   /* USER CODE END StartBatteryLedTask */
+}
+
+/* USER CODE BEGIN Header_StartIWDGTask */
+/**
+* @brief Function implementing the IWDGTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartIWDGTask */
+__weak void StartIWDGTask(void *argument)
+{
+  /* USER CODE BEGIN StartIWDGTask */
+  UNUSED(argument);
+  /* USER CODE END StartIWDGTask */
 }
 
 /* Private application code --------------------------------------------------*/

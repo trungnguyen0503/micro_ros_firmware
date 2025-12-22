@@ -18,6 +18,7 @@
 extern osThreadId_t InitTaskHandle;
 
 static bool g_task_is_done = false;
+bool ROS_Init_done = false;
 
 bool Task_Init_IsDone() {
     return g_task_is_done;
@@ -28,6 +29,7 @@ void Task_Init_WaitUntilDone() {
         osDelay(100);
     }
 }
+
 
 void StartInitTask(void *arg) {
     (void)arg;
@@ -43,7 +45,7 @@ void StartInitTask(void *arg) {
 
     Utility_Log(Utility_LogInfo, "Initializing ros components");
     Ros_Init();
-
+    ROS_Init_done = true;
     Utility_Log(Utility_LogInfo, "Initializing ros nodes");
     Ros_ImuNode_Init();
     Ros_BatteryNode_Init();
