@@ -22,10 +22,14 @@ enum {
 static rcl_node_t g_node = { 0 };
 static rcl_publisher_t g_vel_data_pub = { 0 };
 
-#define V_MAX Kine_AngularVelToLinearVel(Actuator_Motor_MAX_ANGULAR_VEL) * 1.1
+static double linear = 0;
+static double angular = 0;
+
+#define V_MAX Kine_AngularVelToLinearVel(Actuator_Motor_MAX_ANGULAR_VEL)
+#define V_MIN Kine_AngularVelToLinearVel(Actuator_Motor_MIN_ANGULAR_VEL)
 
 void Ros_VelNode_Init() {
-    rclc_node_init_default(&g_node, NODE_NAME, "", Ros_GetSupportStruct());
+    rclc_node_init_default(&g_node, NODE_NAME, "robot2", Ros_GetSupportStruct());
     rclc_publisher_init_best_effort(
         &g_vel_data_pub, &g_node,
         ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, TwistStamped),
@@ -37,16 +41,22 @@ void Ros_VelNode_PublishVel() {
     const double wl = Sensor_MotorEncoder_GetLeftAngularVel();
     const double wr = Sensor_MotorEncoder_GetRightAngularVel();
     double vl = Kine_AngularVelToLinearVel(wl);
-    if (fabs(vl) > V_MAX) {
+    if (fabs(vl) > V_MAX || fabs(vl) < V_MIN) {
         vl = 0;
     }
     double vr = Kine_AngularVelToLinearVel(wr);
-    if (fabs(vr) > V_MAX) {
+    if (fabs(vr) > V_MAX || fabs(vr) < V_MIN) {
         vr = 0;
     }
-    const double linear = (vl + vr) / 2;
-    const double angular = (vr - vl) / Kine_WHEEL_BASE;
+    linear = (vl + vr) / 2;
+    if (fabs(linear) < 0.009) {
+            linear = 0;
+        }
 
+    angular = (vr - vl) / Kine_WHEEL_BASE;
+    if (fabs(angular) < 0.08) {
+            angular = 0;
+        }
     const geometry_msgs__msg__TwistStamped msg = {
         .header.stamp = Utility_GetRosTimeStamp(),
         .header.frame_id = Utility_MakeStaticRosCString("base_link"),

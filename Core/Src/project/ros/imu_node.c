@@ -15,7 +15,7 @@ static rcl_publisher_t g_imu_data_pub = { 0 };
 static rcl_publisher_t g_mag_data_pub = { 0 };
 
 void Ros_ImuNode_Init() {
-    rclc_node_init_default(&g_node, NODE_NAME, "", Ros_GetSupportStruct());
+    rclc_node_init_default(&g_node, NODE_NAME, "robot2", Ros_GetSupportStruct());
     rclc_publisher_init_best_effort(
         &g_imu_data_pub, &g_node,
         ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, Imu),

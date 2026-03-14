@@ -54,14 +54,14 @@ static WheelPidCommon_t g_wheel_pid = { 0 };
 
 static WheelPid_t g_left_wheel_pid = {
     .kp = 500,
-    .ki = 3100,
+    .ki = 4050,
     .kd = 0,
     .kff = 300,
 };
 
 static WheelPid_t g_right_wheel_pid = {
     .kp = 500,
-    .ki = 3100,
+    .ki = 3950,
     .kd = 0,
     .kff = 300
 };
@@ -71,7 +71,7 @@ static void CmdVelCallback(const void *void_msg);
 static void VelEncoderCallback(const void *void_msg);
 
 void Ros_DiffDriveNode_Init() {
-    rclc_node_init_default(&g_node, NODE_NAME, "", Ros_GetSupportStruct());
+    rclc_node_init_default(&g_node, NODE_NAME, "robot2", Ros_GetSupportStruct());
     rclc_subscription_init_best_effort(
         &g_cmd_vel_sub, &g_node,
         ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),
@@ -92,13 +92,13 @@ void Ros_DiffDriveNode_Init() {
         &g_vel_encoder_msg, VelEncoderCallback, ON_NEW_DATA
     );
 
-    g_wheel_pid.max_output = Kine_AngularVelToLinearVel(Actuator_Motor_MAX_ANGULAR_VEL) * 0.95;
+    g_wheel_pid.max_output = Kine_AngularVelToLinearVel(Actuator_Motor_MAX_ANGULAR_VEL) * 1.02;
     g_wheel_pid.deadzone =
         Kine_AngularVelToLinearVel(Actuator_Motor_MIN_ANGULAR_VEL) +
-        (g_wheel_pid.max_output * 0.05);
-    // g_wheel_pid.integral_max = g_wheel_pid.max_output * 0.5;
+        (g_wheel_pid.max_output * 0.09);
+    g_wheel_pid.integral_max = g_wheel_pid.max_output * 0.5;
     g_wheel_pid.hyst = g_wheel_pid.deadzone * 0.3;
-    g_wheel_pid.integral_max = g_wheel_pid.max_output * 0.2;
+    g_wheel_pid.integral_max = g_wheel_pid.max_output * 0.125;
 }
 
 void Ros_DiffDriveNode_SpinExec(const uint32_t timeout_ns) {

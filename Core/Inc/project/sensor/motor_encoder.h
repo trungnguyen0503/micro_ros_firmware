@@ -3,7 +3,7 @@
 
 #include "tim.h"
 
-#define Sensor_MotorEncoder_CPR 2060
+#define Sensor_MotorEncoder_CPR 900
 
 #define Sensor_MotorEncoder_LEFT_HTIM htim3
 #define Sensor_MotorEncoder_RIGHT_HTIM htim8

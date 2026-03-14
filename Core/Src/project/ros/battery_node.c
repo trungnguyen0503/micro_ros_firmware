@@ -11,7 +11,7 @@ static rcl_node_t g_handle = { 0 };
 static rcl_publisher_t g_battery_voltage_pub = { 0 };
 
 void Ros_BatteryNode_Init() {
-    rclc_node_init_default(&g_handle, "battery_node", "", Ros_GetSupportStruct());
+    rclc_node_init_default(&g_handle, "battery_node", "robot2", Ros_GetSupportStruct());
     rclc_publisher_init_best_effort(
         &g_battery_voltage_pub,
         &g_handle,

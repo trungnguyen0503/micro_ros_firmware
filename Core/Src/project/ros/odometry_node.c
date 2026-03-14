@@ -56,7 +56,7 @@ static void MagDataCallback(const void *void_msg);
 static void PublishOdoData();
 
 void Ros_OdometryNode_Init() {
-    rclc_node_init_default(&g_node, NODE_NAME, "", Ros_GetSupportStruct());
+    rclc_node_init_default(&g_node, NODE_NAME, "robot2", Ros_GetSupportStruct());
     rclc_subscription_init_best_effort(
         &g_vel_data_sub, &g_node,
         ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, TwistStamped),
