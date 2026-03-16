@@ -21,11 +21,12 @@ enum {
 
 static rcl_node_t g_node = { 0 };
 static rcl_publisher_t g_vel_data_pub = { 0 };
-
+static double linear = 0;
+static double angular = 0;
 #define V_MAX Kine_AngularVelToLinearVel(Actuator_Motor_MAX_ANGULAR_VEL) * 1.1
 
 void Ros_VelNode_Init() {
-    rclc_node_init_default(&g_node, NODE_NAME, "", Ros_GetSupportStruct());
+    rclc_node_init_default(&g_node, NODE_NAME, "robot1", Ros_GetSupportStruct());
     rclc_publisher_init_best_effort(
         &g_vel_data_pub, &g_node,
         ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, TwistStamped),
@@ -44,8 +45,15 @@ void Ros_VelNode_PublishVel() {
     if (fabs(vr) > V_MAX) {
         vr = 0;
     }
-    const double linear = (vl + vr) / 2;
-    const double angular = (vr - vl) / Kine_WHEEL_BASE;
+    linear = (vl + vr) / 2;
+//    if (fabs(linear) < 0.009) {
+//            linear = 0;
+//        }
+
+    angular = (vr - vl) / Kine_WHEEL_BASE;
+//    if (fabs(angular) < 0.03) {
+//            angular = 0;
+//        }
 
     const geometry_msgs__msg__TwistStamped msg = {
         .header.stamp = Utility_GetRosTimeStamp(),

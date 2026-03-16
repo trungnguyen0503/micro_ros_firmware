@@ -78,7 +78,7 @@ double Actuator_Motor_LeftAngularVelToPwmPercent(const double w) {
     }
     if (rpm >= 0) {
         // return 52.5 + (0.146 * abs_rpm) + (3.76E-5 * abs_rpm * abs_rpm);
-    return 52.0 + (0.31 * abs_rpm) + (3.56E-4 * abs_rpm * abs_rpm);
+    return 52.0 + (0.3334 * abs_rpm) + (3.56E-4 * abs_rpm * abs_rpm);
     }
     // return -52.0 - (0.159 * abs_rpm) - (3.38E-5 * abs_rpm * abs_rpm);
     return -51.5 - (0.3346 * abs_rpm) - (3.8E-4 * abs_rpm * abs_rpm);
@@ -95,7 +95,7 @@ double Actuator_Motor_RightAngularVelToPwmPercent(const double w) {
     }
     if (rpm >= 0) {
         // return 52.0 + (0.174 * abs_rpm) - (1.44E-5 * abs_rpm * abs_rpm);
-        return 52.6 + (0.351 * abs_rpm) + (12.7E-5 * abs_rpm * abs_rpm);
+        return 52.6 + (0.353 * abs_rpm) + (12.7E-5 * abs_rpm * abs_rpm);
     }
     // return -52.7 - (0.152 * abs_rpm) - (1.08E-5 * abs_rpm * abs_rpm);
     return - 53.0 - (0.32 * abs_rpm) - (3.2E-4 * abs_rpm * abs_rpm);

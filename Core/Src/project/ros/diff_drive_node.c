@@ -53,7 +53,7 @@ static int64_t g_last_vel_encoder_stamp_ns = 0;
 static WheelPidCommon_t g_wheel_pid = { 0 };
 
 static WheelPid_t g_left_wheel_pid = {
-    .kp = 500,
+    .kp = 550,
     .ki = 3100,
     .kd = 0,
     .kff = 300,
@@ -71,7 +71,7 @@ static void CmdVelCallback(const void *void_msg);
 static void VelEncoderCallback(const void *void_msg);
 
 void Ros_DiffDriveNode_Init() {
-    rclc_node_init_default(&g_node, NODE_NAME, "", Ros_GetSupportStruct());
+    rclc_node_init_default(&g_node, NODE_NAME, "robot1", Ros_GetSupportStruct());
     rclc_subscription_init_best_effort(
         &g_cmd_vel_sub, &g_node,
         ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),
