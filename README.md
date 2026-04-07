@@ -49,3 +49,4 @@ Below is a screenshot of the firmware running on the STM32F446RET6 board, if the
 
 ![Firmware Screenshot](image/done.png)
 ![RQT_graph](image/ROS2_data.jpg)
+![example_robots](image/robots.jpg)
